@@ -8,10 +8,7 @@ All roles are contained within one git repository following the ansible monorepo
 ## Requirements
 Ansible => 2.9
 
-## Usage
-See [Examples](#examples) for extended usage.
-
-### Install roles
+## Install
 Your `requirements.yml` is used by the `ansible-galaxy` tool to understand what sources to use. It should list *this* github repository as the source.
 
 Note: you can extend this file to pull from multiple sources.
@@ -19,13 +16,20 @@ Note: you can extend this file to pull from multiple sources.
 ### Create requirements.yml
 ```yaml
 ---
-- src: https://github.com/hobbsAU/ansible-roles/
-  name: ansible-roles
-  version: master
+- src: git://github.com/hobbsAU/ansible-roles.git
+  name: hobbsAU
   scm: git
+  version: master
 ```
 
-### Use the roles
+### Install with ansible-galaxy
+```bash
+$ ansible-galaxy install -r requirements.yml
+```
+
+## Usage
+See [Examples](#examples) for extended usage.
+
 Use the roles within a play as per the following example.
 ```yaml
 ---
@@ -37,10 +41,10 @@ Use the roles within a play as per the following example.
   become: true
   
   roles:
-    - ansible-roles/sysupdate
+    - hobbsAU/sysupdate
 ```
 
-### Examples
+## Examples
 See examples in ansible-roles/examples.
 
 ## Authors
