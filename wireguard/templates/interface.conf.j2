@@ -1,0 +1,12 @@
+[Interface]
+Address = {{ wireguard_address }}/24
+PrivateKey = {{ wireguard_private_key }}
+ListenPort = {{ wireguard_listen_port }}
+PostUp = iptables -P FORWARD DROP; iptables -A FORWARD -i eth0 -o wg0 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT; iptables -A FORWARD -i %i -o eth0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PreDown = iptables -D FORWARD -i eth0 -o wg0 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT; iptables -D FORWARD -i %i -o eth0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+{% for host in wireguard_peers.values() %}
+[Peer]
+PublicKey = {{ host.pubkey }}
+AllowedIps = {{ host.ip }}/32
+{% endfor %}

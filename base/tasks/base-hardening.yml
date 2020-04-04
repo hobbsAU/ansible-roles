@@ -1,0 +1,4 @@
+---
+# File: roles/base/tasks/base-hardening.yml
+# Desc: Harden system and reboot if necessary
+

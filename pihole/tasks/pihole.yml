@@ -1,0 +1,133 @@
+---
+# file: roles/pihole/tasks/pihole.yml
+# desc: Installs and configures pihole
+#
+
+- name: Enable Host DNS
+  lineinfile:
+    path: /etc/resolv.conf
+    regexp: '^nameserver'
+    line: 'nameserver 8.8.8.8'
+
+- name: 'Disable WIFI and Bluetooth'
+  copy: src=./files/raspi-blacklist.conf dest=/etc/modprobe.d/raspi-blacklist.conf mode=0600
+  tags: admin
+
+- name: Stop and disable services
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  register: service_result
+  failed_when: "service_result is failed and 'Could not find the requested service' not in service_result.msg"
+  loop: "{{ disable_services }}"
+
+- name: Add the user
+  user:
+    name: "{{ user_pihole }}"
+    comment: PiHole Daemon
+
+- name: "Download Pi-Hole installer"
+  get_url:
+      url: https://install.pi-hole.net
+      dest: ~/install-pihole.sh
+      mode: 0740
+  tags: pihole
+
+- name: Create pihole configuration directory
+  become: True
+  file:
+    name: "{{ fspath_pihole_config }}"
+    state: directory
+    owner: "{{ user_pihole }}"
+    group: "{{ group_pihole }}"
+    mode: 0755
+  tags: pihole
+
+- name: Create pihole configuration
+  become: True
+  template:
+    src: "setupVars.conf.j2"
+    dest: "{{ fspath_pihole_config }}/setupVars.conf"
+    owner: root
+    group: root
+    mode: 0644
+  tags: pihole
+
+- name: Create dnsmasq configuration directory
+  become: True
+  file:
+    name: "{{ fspath_dnsmasq_config }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  tags: pihole
+
+- name: Create dhcp config
+  become: True
+  template:
+    src: "02-pihole-dhcp.conf.j2"
+    dest: "{{ fspath_dnsmasq_config }}/02-pihole-dhcp.conf"
+    owner: root
+    group: root
+    mode: 0644
+  tags: pihole
+
+- name: Create hosts config
+  become: True
+  template:
+    src: "03-custom-dns-names.conf"
+    dest: "{{ fspath_dnsmasq_config }}/03-custom-dns-names.conf"
+    owner: root
+    group: root
+    mode: 0644
+  tags: pihole
+
+- name: Create pihole dhcp list
+  become: True
+  template:
+    src: "04-pihole-static-dhcp.conf.j2"
+    dest: "{{ fspath_dnsmasq_config }}/04-pihole-static-dhcp.conf"
+    owner: root
+    group: root
+    mode: 0644
+  tags: pihole
+
+- name: Configure static IP in  /etc/dhcpcd.conf
+  become: yes
+  lineinfile:
+    dest:  /etc/dhcpcd.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { regexp: "^interface eth[0-9]$", line: "interface {{ interface }}" }
+    - { regexp: "^static ip_address", line: "static ip_address={{ ipaddress }}" }
+    - { regexp: "^static routers", line: "static routers={{ gateway }}" }
+    - { regexp: "^static domain_name_servers", line: "static domain_name_servers={{ host_dns_servers }}" }
+
+- name: Install Pi-Hole
+  shell: "~/install-pihole.sh --unattended"
+  register: dbg_install_pihole
+  tags: pihole
+
+- name: Set PiHole to update every week
+  become: True
+  replace:
+    path: /etc/cron.d/pihole
+    regexp: '^#(.*updatePihole.*)$'
+    replace: '\1'
+    backup: yes
+  tags: admin
+
+- name: 'Reboot'
+  shell: sleep 2 && reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+  tags: pihole
+
+- name: "Wait for Raspberry PI to come back"
+  local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
+  become: false

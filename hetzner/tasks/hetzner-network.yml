@@ -1,0 +1,30 @@
+---
+# File: ansible-role-hetzner/tasks/hetzner-network.yml
+# Desc: Configures Hetzner specific network parameters
+
+- name: get public IP
+  uri:
+    url: http://169.254.169.254/latest/meta-data/public-ipv4
+    #url: https://api.my-ip.io/ip
+    return_content: yes
+    timeout: 8
+  register: uri_output
+  failed_when: false
+
+- name: Update fact
+  set_fact:
+    hetzner_publicipv4: "{{ uri_output.content }}"
+  when: uri_output.content | length > 0
+
+- name: setup network
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: yes
+  loop:
+    - { path: "/etc/network/interfaces.d/50-cloud-init.cfg", regexp: "^(.*)eth0:0", line: "eth0"}
+    - { path: "/etc/network/interfaces.d/50-cloud-init.cfg", regexp: "^(.*)iface eth0 inet dhcp", line: "iface eth0 inet static\n    address {{ hetzner_publicipv4 }}\n    netmask 255.255.255.255\n    gateway 172.31.1.1"}
+  tags: hetzner
+  notify: restart network
+  when: hetzner_publicipv4 is defined

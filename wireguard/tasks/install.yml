@@ -1,0 +1,28 @@
+---
+
+- name: Add repository for WireGuard
+  copy:
+    src: unstable-wireguard.list
+    dest: /etc/apt/sources.list.d/unstable-wireguard.list
+  when: ansible_distribution == 'Debian'
+
+- name: Add APT-pinning for WireGuard
+  copy:
+    src: limit-unstable
+    dest: /etc/apt/preferences.d/limit-unstable
+  when: ansible_distribution == 'Debian'
+
+- name: Install dependencies
+  apt:
+    pkg:
+      - linux-headers-amd64
+      - openresolv
+    state: present
+    update_cache: yes
+
+- name: Install WireGuard
+  apt:
+    name: wireguard
+    state: present
+    update_cache: yes
+

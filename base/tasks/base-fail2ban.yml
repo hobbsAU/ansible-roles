@@ -1,0 +1,25 @@
+---
+# File: roles/base/tasks/base-fail2ban.yml
+# Desc: Configures and starts fail2ban
+
+- name: install fail2ban
+  package:
+    name: "fail2ban"
+    state: present
+
+- name: configure sshd jail
+  template:
+    src: jail-debian.local.j2
+    dest: "/etc/fail2ban/jail.d/jail-debian.local"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart fail2ban
+  tags: configuration
+
+- name: enable fail2ban
+  service:
+    name: "{{ sshd_service_name }}"
+    state: started
+    enabled: yes
+  tags: service

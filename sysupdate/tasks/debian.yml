@@ -1,0 +1,15 @@
+---
+# File: roles/sysupdate/tasks/update.yml
+# Desc: Update system and reboot if necessary
+
+- name: Apt Dist Upgrade
+  apt:
+    update_cache: yes
+    upgrade: dist
+    autoclean: yes
+  register: system_updated
+
+- name: Reboot
+  reboot:
+  when: system_updated is changed
+

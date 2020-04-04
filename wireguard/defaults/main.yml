@@ -1,0 +1,5 @@
+---
+
+wireguard_listen_port: 5353
+wireguard_interface: wg0
+wireguard_group: wireguard

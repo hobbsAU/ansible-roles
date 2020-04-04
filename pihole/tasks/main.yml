@@ -1,0 +1,19 @@
+---
+# File: roles/docker/tasks/main.yml
+# Desc: installs and configures docker
+
+- name: Include cloudflared
+  include_tasks: cloudflared.yml
+  when: install_cloudflared | bool
+
+- name: Include pihole install
+  include_tasks: pihole.yml
+  when: install_pihole | bool
+
+- name: Include pihole update
+  include_tasks: pihole_up.yml
+  when: update_pihole | bool
+
+- name: Ensure handlers are notified now to avoid conflicts.
+  meta: flush_handlers
+

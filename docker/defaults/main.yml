@@ -1,0 +1,34 @@
+---
+
+# Switches
+docker_install_daemon: true
+docker_install_compose: true
+
+# Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
+docker_edition: 'ce'
+docker_package: "docker-{{ docker_edition }}"
+docker_package_state: present
+
+# Service options.
+docker_service_state: started
+docker_service_enabled: true
+docker_restart_handler_state: restarted
+
+# Daemon options
+docker_daemon_dir: /etc/docker
+docker_daemon_opts: '{  "data-root": "/var/lib/docker" }'
+
+# Docker Compose options.
+docker_compose_versioncheck: true
+docker_compose_versioncheck_url: "curl -Ls https://www.servercow.de/docker-compose/latest.php"
+docker_compose_version: "1.24.1"
+docker_compose_path: /usr/local/bin/docker-compose
+
+# Used only for Debian/Ubuntu. Switch 'stable' to 'edge' if needed.
+docker_apt_release_channel: stable
+docker_apt_arch: amd64
+docker_apt_repository: "deb [arch={{ docker_apt_arch }}] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+docker_apt_ignore_key_error: false
+
+# A list of users who will be added to the docker group.
+docker_users: []

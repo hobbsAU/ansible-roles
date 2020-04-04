@@ -1,0 +1,12 @@
+---
+# File: roles/base/tasks/dotfiles.yml
+# Desc: Add relevant lines to dotfiles and create if not present
+
+- name: Update dotfiles
+  when: ansible_distribution == "Debian"
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: yes
+  loop: "{{ base_dotfiles }}"

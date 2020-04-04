@@ -1,0 +1,15 @@
+---
+# File: roles/base/tasks/base-update.yml
+# Desc: Update system and reboot if necessary
+
+- name: Update system
+  package:
+    name: "*"
+    update_cache: yes
+    state: latest
+  register: system_updated
+
+- name: Reboot
+  reboot:
+  when: system_updated is changed
+

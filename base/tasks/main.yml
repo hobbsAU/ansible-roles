@@ -1,0 +1,29 @@
+---
+# File: roles/base/tasks/main.yml
+# Desc: Configures Debian base O/S
+
+#- name: "Setting hostname"
+#  hostname:
+#    name: base_hostname 
+#  tags: admin
+
+- name: Include packages
+  include_tasks: base-packages.yml
+  when: base_install_software | bool
+
+- name: Include sshd-config
+  include_tasks: base-sshd.yml
+  when: base_config_sshd | bool
+
+- name: Include fail2ban-config
+  include_tasks: base-fail2ban.yml
+  when: base_config_fail2ban | bool
+
+- name: Include dotfiles
+  include_tasks: base-dotfiles.yml
+  when: base_config_dotfiles | bool
+
+- name: Include hardening
+  include_tasks: base-hardening.yml
+  when: base_harden_system | bool
+

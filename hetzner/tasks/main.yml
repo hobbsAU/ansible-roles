@@ -1,0 +1,18 @@
+---
+# File: ansible-role-hetzner/tasks/main.yml
+# Desc: Hetzner specific configuration
+
+- name: Include automount fix
+  include_tasks: hetzner-automount.yml
+  when: hetzner_automount | bool
+
+- name: Include network configuration
+  include_tasks: hetzner-network.yml
+  when: hetzner_network | bool
+
+- name: Include floatingip configuration
+  include_tasks: hetzner-floatingip.yml
+  when:
+    - hetzner_floatingip | bool
+    - hc_floating_ip | length > 0
+

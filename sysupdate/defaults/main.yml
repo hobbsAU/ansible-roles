@@ -1,0 +1,5 @@
+---
+# defaults file for sysupdate
+
+# Switches
+sysupdate: true

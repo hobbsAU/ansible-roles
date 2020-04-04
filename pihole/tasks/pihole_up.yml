@@ -1,0 +1,10 @@
+---
+# file: roles/pihole/tasks/pihole_up.yml
+# desc: Update pihole
+#
+
+- name: Update Pi-Hole
+  shell: "pihole -up"
+  register: update_pihole
+  tags: pihole
+

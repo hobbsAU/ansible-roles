@@ -1,0 +1,28 @@
+---
+# File: ansible-role-hetzner/tasks/hetzner-automount.yml
+# Desc: Configures Hetzner automount
+
+# Setup Hetzner cloud automount - we use the content from /var/lib/cloud/instances/xxxxxx/vendor-cloud-config.txt vendor-data write_files
+# content here as the user-data write directives seem to interfere and override the vendor-data ones.
+- name: Hetzner cloud automount
+  copy:
+    src: hetzner.automount
+    dest: "/etc/udev/rules.d/99-hcloud-automount.rules"
+    owner: root
+    group: root
+    mode: "0400"
+  tags: hetzner
+  register: hetzner_automount_changed
+
+- name: force systemd to reload configs
+  systemd:
+    daemon_reload: yes
+  when: hetzner_automount_changed is changed
+
+- name: reload and process udev automount
+  command: "{{ item }}"
+  loop:
+    - "udevadm control --reload"
+    - "udevadm trigger -c add -s block -p ID_VENDOR=HC --verbose -p ID_MODEL=Volume"
+    - "udevadm settle -t 15"  # required to block script until mount is complete otherwise it's possible to enter a race condition
+  when: hetzner_automount_changed is changed

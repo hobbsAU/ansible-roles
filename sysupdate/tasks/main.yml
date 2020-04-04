@@ -1,0 +1,8 @@
+---
+# tasks file for sysupdate
+
+- name: Debian system update
+  include_tasks: debian.yml
+  when:
+    - sysupdate | bool
+    - ansible_distribution == "Debian"
