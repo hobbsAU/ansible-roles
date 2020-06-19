@@ -1,0 +1,19 @@
+---
+# File: sysupdate/tasks/arch.yml
+# Desc: Update system and reboot if necessary
+
+- name: Full system upgrade
+  pacman:
+    update_cache: yes
+    upgrade: yes
+  register: result
+
+- name: Show Output
+  debug: 
+    msg: "{{ item.key }}: {{ item.value }}"
+  loop: "{{ lookup('dict', result) }}"
+
+- name: Reboot
+  reboot:
+  when: result is changed
+

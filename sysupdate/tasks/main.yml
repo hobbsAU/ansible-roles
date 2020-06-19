@@ -1,8 +1,18 @@
 ---
 # tasks file for sysupdate
 
+- name: Print distribution
+  debug:
+    msg: "{{ ansible_distribution }}"
+
 - name: Debian system update
   include_tasks: debian.yml
   when:
     - sysupdate | bool
     - ansible_distribution == "Debian"
+
+- name: Arch system update
+  include_tasks: arch.yml
+  when:
+    - sysupdate | bool
+    - ansible_distribution == "Archlinux"
