@@ -43,8 +43,6 @@ galaxy_info:
   - name: Debian
     versions:
       - all
-
-  platforms:
   - name: ArchLinux
     versions:
       - all
