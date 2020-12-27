@@ -5,8 +5,5 @@ hetzner_automount: true
 hetzner_network: true
 hetzner_floatingip: true
 
-# Services
-networking_restart_handler_state: restarted
-
 # Hetzner
-hc_floating_ip: ""
+hetzner_floating_ip: ""

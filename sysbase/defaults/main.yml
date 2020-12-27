@@ -13,12 +13,12 @@ base_services: ['unattended-upgrades', 'sshd']
 base_packages_removed: ['exim4*']
 
 # SSHD config
-sshd_pkg_state: "latest"
-sshd_config_basedir: "/etc/ssh"
-sshd_service_name: "sshd"
-sshd_port: "22"
-sshd_listen_address: "0.0.0.0"
-sshd_user: "user1"
+base_sshd_pkg_state: "latest"
+base_sshd_config_basedir: "/etc/ssh"
+base_sshd_service_name: "sshd"
+base_sshd_port: "22"
+base_sshd_listen_address: "0.0.0.0"
+base_sshd_user: "user1"
 
 # Dotfiles
 base_dotfiles:

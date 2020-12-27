@@ -14,5 +14,5 @@
   include_tasks: hetzner-floatingip.yml
   when:
     - hetzner_floatingip | bool
-    - hc_floating_ip | length > 0
+    - hetzner_floating_ip | length > 0
 

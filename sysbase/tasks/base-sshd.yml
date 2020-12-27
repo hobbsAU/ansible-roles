@@ -5,7 +5,7 @@
 - name: configure sshd
   template:
     src: sshd_config.j2
-    dest: "{{ sshd_config_basedir }}/sshd_config"
+    dest: "{{ base_sshd_config_basedir }}/sshd_config"
     owner: root
     group: root
     mode: "0400"
@@ -15,7 +15,7 @@
 
 - name: enable sshd
   service:
-    name: "{{ sshd_service_name }}"
+    name: "{{ base_sshd_service_name }}"
     state: started
     enabled: yes
   tags: service
