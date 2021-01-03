@@ -23,7 +23,7 @@ base_sshd_usergroup: "ssh-users"
 # Dotfiles
 base_dotfiles:
   - { path: "/home/{{ ansible_user }}/.bashrc", regexp: "^(.*)alias ll", line: "alias ll='ls -l'"}
-  - { path: "/home/{{ ansible_user }}/.bashrc", regexp: "^(.*)alias la", line: "alias ll='ls -Al'"}
+  - { path: "/home/{{ ansible_user }}/.bashrc", regexp: "^(.*)alias la", line: "alias la='ls -Al'"}
   - { path: "/home/{{ ansible_user }}/.vimrc", regexp: "^(.*)set mouse-=a", line: "set mouse-=a"}
   - { path: "/home/{{ ansible_user }}/.vimrc", regexp: "^(.*)syntax on", line: "syntax on"}
   - { path: "/root/.bashrc", regexp: "^(.*)export LS_OPTIONS", line: "export LS_OPTIONS='--color=auto'"}
