@@ -9,5 +9,4 @@
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     create: yes
-    backrefs: yes
   loop: "{{ base_dotfiles }}"
