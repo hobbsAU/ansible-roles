@@ -18,7 +18,7 @@ base_sshd_config_basedir: "/etc/ssh"
 base_sshd_service_name: "sshd"
 base_sshd_port: "22"
 base_sshd_listen_address: "0.0.0.0"
-base_sshd_usergroup: "ssh-user"
+base_sshd_usergroup: "ssh-users"
 
 # Dotfiles
 base_dotfiles:
