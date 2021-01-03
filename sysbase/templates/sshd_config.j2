@@ -2,6 +2,8 @@ Port {{ base_sshd_port }}
 AddressFamily inet
 ListenAddress {{ base_sshd_listen_address }}
 Protocol 2
+HostKeyAlgorithms ssh-ed25519
+PubkeyAcceptedKeyTypes ssh-ed25519
 KexAlgorithms curve25519-sha256@libssh.org
 HostKey /etc/ssh/ssh_host_ed25519_key
 Ciphers chacha20-poly1305@openssh.com
@@ -14,16 +16,17 @@ AuthorizedKeysFile      .ssh/authorized_keys
 HostbasedAuthentication no
 X11Forwarding no
 AllowTcpForwarding no
+AllowStreamLocalForwarding no
 AllowAgentForwarding no
 IgnoreRhosts yes
 PasswordAuthentication no
 PermitEmptyPasswords no
 ChallengeResponseAuthentication no
-UsePrivilegeSeparation sandbox
 LogLevel VERBOSE
 AllowUsers {{ base_sshd_user }}
 ClientAliveInterval 300
 ClientAliveCountMax 3
 UsePAM yes
 AuthenticationMethods publickey
+PrintMotd no
 #Subsystem sftp /usr/lib/openssh/sftp-server
