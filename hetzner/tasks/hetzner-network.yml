@@ -23,8 +23,8 @@
     line: "{{ item.line }}"
     create: yes
   loop:
-    - { path: "/etc/network/interfaces.d/50-cloud-init.cfg", regexp: "^(.*)eth0:0", line: "eth0"}
-    - { path: "/etc/network/interfaces.d/50-cloud-init.cfg", regexp: "^(.*)iface eth0 inet dhcp", line: "iface eth0 inet static\n    address {{ hetzner_publicipv4 }}\n    netmask 255.255.255.255\n    gateway 172.31.1.1"}
+    - { path: "/etc/network/interfaces.d/50-cloud-init", regexp: "^(.*)eth0:0", line: "eth0"}
+    - { path: "/etc/network/interfaces.d/50-cloud-init", regexp: "^(.*)iface eth0 inet dhcp", line: "iface eth0 inet static\n    address {{ hetzner_publicipv4 }}\n    netmask 255.255.255.255\n    gateway 172.31.1.1\n    pointopoint 172.31.1.1\n"}
   tags: hetzner
   notify: restart network
   when: hetzner_publicipv4 is defined

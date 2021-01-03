@@ -1,9 +1,9 @@
 ---
 
 # Switches
-hetzner_automount: true
-hetzner_network: true
-hetzner_floatingip: true
+hetzner_automount: false
+hetzner_network: false
+hetzner_floatingip: false
 
 # Hetzner
 hetzner_floating_ip: ""
