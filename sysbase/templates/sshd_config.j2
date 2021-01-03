@@ -23,7 +23,7 @@ PasswordAuthentication no
 PermitEmptyPasswords no
 ChallengeResponseAuthentication no
 LogLevel VERBOSE
-AllowUsers {{ base_sshd_user }}
+AllowGroups {{ base_sshd_usergroup }}
 ClientAliveInterval 300
 ClientAliveCountMax 3
 UsePAM yes
