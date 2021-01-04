@@ -2,6 +2,12 @@
 # file: roles/docker/tasks/docker-compose.yml
 # desc: Installs and configures docker-compose
 
+- name: Install Docker dependencies
+  apt:
+    name: [ 'python3-pip']
+    state: present
+    update_cache: yes
+
 - include_tasks: docker-compose-version.yml
   when: docker_compose_versioncheck | bool
 
@@ -24,6 +30,11 @@
     url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
     dest: "{{ docker_compose_path }}"
     mode: 0755
+
+- name: Install setuptools pip module
+  pip:
+    name: setuptools
+    state: present
 
 - name: Install docker-compose pip module
   pip:
