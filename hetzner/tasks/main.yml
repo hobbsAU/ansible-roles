@@ -16,3 +16,5 @@
     - hetzner_floatingip | bool
     - hetzner_floating_ip | length > 0
 
+- name: Flush handlers
+  meta: flush_handlers
