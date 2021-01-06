@@ -9,7 +9,9 @@
 - name: Install required pip packages
   become: yes
   pip:
-    name: docker
+    name: 
+      - docker
+      - netaddr
     state: present
 
 - name: Check if mailcow installation directory exists
