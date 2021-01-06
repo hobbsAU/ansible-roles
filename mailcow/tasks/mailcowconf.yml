@@ -137,7 +137,7 @@
   replace:
     path: "{{ mailcow__install_path }}/mailcow.conf"
     regexp: "^COMPOSE_PROJECT_NAME=.*"
-    replace: "COMPOSE_PROJECT_NAME={{ mailcow__config_compose_project_name }}"
+    replace: "COMPOSE_PROJECT_NAME={{ mailcow__docker_compose_project_name }}"
   notify: Recreate mailcow
 
 - name: Configure ACL_ANYONE
