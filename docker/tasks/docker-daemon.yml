@@ -37,6 +37,9 @@
 - name: Ensure daemon dir exists
   file:
     path: "{{ docker_daemon_dir }}"
+    mode: 0700
+    owner: root
+    group: root
     state: directory
   when: docker_daemon_opts | length > 0
 
@@ -44,6 +47,9 @@
   template:
     src: daemon.json.j2
     dest: "{{ docker_daemon_dir }}/daemon.json"
+    mode: 0644
+    owner: root
+    group: root
   when: docker_daemon_opts | length > 0
   notify: restart docker
 

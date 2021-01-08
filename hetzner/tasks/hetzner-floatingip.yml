@@ -6,6 +6,9 @@
   template:
     src: hetzner.floating-ip.j2
     dest: "/etc/network/interfaces.d/60-my-floating-ip.cfg"
+    mode: 0644
+    owner: root
+    group: root
   tags: hetzner
   notify: restart network
 
