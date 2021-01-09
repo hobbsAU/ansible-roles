@@ -2,9 +2,9 @@
 # File: roles/base/tasks/base-fail2ban.yml
 # Desc: Configures and starts fail2ban
 
-- name: install fail2ban
+- name: install fail2ban and whois
   package:
-    name: "fail2ban"
+    name: [ 'fail2ban', 'whois' ]
     state: present
 
 - name: configure sshd jail
