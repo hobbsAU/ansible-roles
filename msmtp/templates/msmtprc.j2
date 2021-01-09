@@ -1,0 +1,40 @@
+# {{ ansible_managed }}
+
+# Set default values for all following accounts.
+defaults
+
+# Use the mail submission port 587 instead of the SMTP port 25.
+port 587
+
+# Always use TLS.
+tls on
+
+# Certificate trust store
+{% if msmtp_tls_trust_file is defined %}
+tls_trust_file {{msmtp_tls_trust_file}}
+{% else %}
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+{% endif %}
+
+# Logging 
+{% if msmtp_log is defined %}
+{% if msmtp_log == "syslog" %}
+syslog on
+{% elif msmtp_log == "file" and msmtp_logfile is defined %}
+logfile  {{msmtp_logfile}}
+{% endif %}
+{% endif %}
+
+
+# This allows msmtp to be used like /usr/sbin/sendmail.
+account default
+# The SMTP smarthost
+host {{ msmtp_default_host }}
+# Use the mail submission port 587 instead of the SMTP port 25.
+port {{ msmtp_default_port }}
+# Always use TLS.
+tls on
+# Construct envelope-from addresses of the form "user@oursite.example"
+from {{ msmtp_default_from }}
+
+aliases /etc/aliases
