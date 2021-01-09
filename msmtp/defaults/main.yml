@@ -1,6 +1,6 @@
 ---
 
-msmtp_packages: ['msmtp', 'msmtp-mta']
+msmtp_packages: ['msmtp', 'msmtp-mta', 'bsd-mailx']
 
 msmtp_default_host: ""
 msmtp_default_port: 587
@@ -12,5 +12,5 @@ msmtp_log: "syslog"
 
 ## Aliases mail account ( only msmtp_alias_default is required the rest is optional )
 msmtp_alias_default: mail@example.com
-msmtp_alias_root: mail@example.com
-msmtp_alias_cron: mail@example.com
+# msmtp_alias_root: mail@example.com
+# msmtp_alias_cron: mail@example.com
