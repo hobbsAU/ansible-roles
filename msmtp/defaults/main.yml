@@ -4,7 +4,7 @@ msmtp_packages: ['msmtp', 'msmtp-mta', 'bsd-mailx']
 
 msmtp_default_host: ""
 msmtp_default_port: 587
-msmtp_default_from: "%U@oursite.example"
+msmtp_default_from: "root@oursite.example"
 
 ## Logging (Select A) "syslog" or B) "file" logging or C) "no" log
 msmtp_log: "syslog"
