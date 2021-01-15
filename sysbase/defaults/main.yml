@@ -19,6 +19,7 @@ base_sshd_service_name: "sshd"
 base_sshd_port: "22"
 base_sshd_listen_address: "0.0.0.0"
 base_sshd_usergroup: "ssh-users"
+base_sshd_retries: 1
 
 # Dotfiles
 base_dotfiles:
