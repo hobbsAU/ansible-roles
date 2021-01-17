@@ -11,5 +11,4 @@
 
 - name: Reboot
   reboot:
-  when: system_updated is changed
-
+  when: (system_updated is changed) and (sysupdate__enable | bool)

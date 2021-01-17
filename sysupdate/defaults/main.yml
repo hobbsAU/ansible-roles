@@ -2,4 +2,5 @@
 # defaults file for sysupdate
 
 # Switches
-sysupdate: true
+sysupdate__enable: true
+sysupdate__reboot: true

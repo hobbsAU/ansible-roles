@@ -8,11 +8,11 @@
 - name: Debian system update
   include_tasks: debian.yml
   when:
-    - sysupdate | bool
+    - sysupdate__enable | bool
     - ansible_distribution == "Debian"
 
 - name: Arch system update
   include_tasks: arch.yml
   when:
-    - sysupdate | bool
+    - sysupdate__enable | bool
     - ansible_distribution == "Archlinux"

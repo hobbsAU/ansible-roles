@@ -15,5 +15,5 @@
 
 - name: Reboot
   reboot:
-  when: result is changed
+  when: (result is changed) and (sysupdate__enable | bool)
 
