@@ -11,6 +11,13 @@
     update_cache: yes
   when: ansible_os_family == "Debian"
 
+- name: Install the ddclient dependencies
+  apt:
+    name: [ 'libio-socket-ssl-perl' ]
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
 - name: ddclient | Set ddclient config
   template: src=ddclient.conf.j2 dest={{ddclient_app_path}}/ddclient.conf
   when: ansible_os_family == "Debian"
