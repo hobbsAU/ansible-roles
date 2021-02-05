@@ -2,10 +2,10 @@
 # defaults file for ddclient
 #
 
-ddclient_syslog: yes
+ddclient_syslog: "yes"
 ddclient_protocol: dyndns2
 ddclient_use: web, web=http://ipv4.nsupdate.info/myip
-ddclient_ssl: yes
+ddclient_ssl: "yes"
 ddclient_server: ipv4.nsupdate.info
 ddclient_login: MY_LOGIN
 ddclient_password: MY_PASSWORD
