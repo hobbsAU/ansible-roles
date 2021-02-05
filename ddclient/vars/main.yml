@@ -1,0 +1,4 @@
+---
+# vars file for ddclient
+ddclient_pkg:
+  - ddclient 
