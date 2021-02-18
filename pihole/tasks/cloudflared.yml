@@ -27,7 +27,8 @@
 - name: Update cloudflare
   command: cloudflared update
   register: update_command
-  changed_when: update_command.rc == '64'
+    #changed_when: update_command.rc == '64'
+  changed_when: (update_command.rc in [ 11, 64 ])
 
 - name: template config file
   template:
