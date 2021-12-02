@@ -21,7 +21,7 @@ docker_daemon_opts: '{  "data-root": "/var/lib/docker" }'
 # Docker Compose options.
 docker_compose_versioncheck: true
 docker_compose_versioncheck_url: "curl -Ls https://www.servercow.de/docker-compose/latest.php"
-docker_compose_version: "1.28.2"
+docker_compose_version: "1.28.5"
 docker_compose_path: /usr/local/bin/docker-compose
 
 # Used only for Debian/Ubuntu. Switch 'stable' to 'edge' if needed.
