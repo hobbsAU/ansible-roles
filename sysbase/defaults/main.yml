@@ -30,4 +30,6 @@ base_dotfiles:
   - { path: "/root/.bashrc", regexp: "^(.*)export LS_OPTIONS", line: "export LS_OPTIONS='--color=auto'"}
   - { path: "/root/.bashrc", regexp: "^(.*)alias ll=", line: "alias ll='ls $LS_OPTIONS -al'"}
   - { path: "/root/.bashrc", regexp: "^(.*)PS1", line: "PS1='${debian_chroot:+($debian_chroot)}\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"}
+  - { path: "/root/.vimrc", regexp: "^(.*)set mouse-=a", line: "set mouse-=a"}
+  - { path: "/root/.vimrc", regexp: "^(.*)syntax on", line: "syntax on"}
 
