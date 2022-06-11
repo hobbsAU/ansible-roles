@@ -21,6 +21,9 @@ base_sshd_listen_address: "0.0.0.0"
 base_sshd_usergroup: "ssh-users"
 base_sshd_retries: 1
 
+# Fail2ban config
+base_fail2ban_nftables: false
+
 # Dotfiles
 base_dotfiles:
   - { path: "/home/{{ ansible_user }}/.bashrc", regexp: "^(.*)alias ll", line: "alias ll='ls -l'"}

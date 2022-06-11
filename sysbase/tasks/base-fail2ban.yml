@@ -17,6 +17,20 @@
   notify: restart fail2ban
   tags: configuration
 
+- name: Update multiport ban with nftables
+  lineinfile:
+    path: "/etc/fail2ban/jail.conf"
+    regexp: "^(.*)banaction ="
+    line: "banaction = nftables-multiport"
+  when: base_fail2ban_nftables | bool
+
+- name: Update allport ban with nftables
+  lineinfile:
+    path: "/etc/fail2ban/jail.conf"
+    regexp: "^(.*)banaction_allports ="
+    line: "banaction_allports = nftables-allports"
+  when: base_fail2ban_nftables | bool
+
 - name: enable fail2ban
   service:
     name: "{{ base_sshd_service_name }}"
