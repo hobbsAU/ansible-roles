@@ -4,13 +4,13 @@
 
 - name: Install Docker dependencies
   apt:
-    name: [ 'apt-transport-https', 'ca-certificates', 'curl', 'gnupg2', 'software-properties-common']
+    name: [ 'ca-certificates', 'curl', 'gnupg', 'lsb-release']
     state: present
     update_cache: yes
 
 - name: Add Docker's official GPG key
   apt_key:
-    keyserver: https://download.docker.com/linux/ubuntu/gpg
+    keyserver: https://download.docker.com/linux/debian/gpg
     id: 0EBFCD88
     state: present
   register: add_repository_key

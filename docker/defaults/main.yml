@@ -2,11 +2,12 @@
 
 # Switches
 docker_install_daemon: true
-docker_install_compose: true
+# Pinned compose (deprecated)
+docker_install_compose: false
 
 # Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
 docker_edition: 'ce'
-docker_package: "docker-{{ docker_edition }}"
+docker_package: ['docker-{{ docker_edition }}', 'docker-ce-cli', 'containerd.io', 'docker-compose-plugin']
 docker_package_state: present
 
 # Service options.
