@@ -20,14 +20,14 @@
 - name: Update multiport ban with nftables
   lineinfile:
     path: "/etc/fail2ban/jail.conf"
-    regexp: "^(.*)banaction ="
+    regexp: "^(.*)banaction = iptables-multiport"
     line: "banaction = nftables-multiport"
   when: base_fail2ban_nftables | bool
 
 - name: Update allport ban with nftables
   lineinfile:
     path: "/etc/fail2ban/jail.conf"
-    regexp: "^(.*)banaction_allports ="
+    regexp: "^(.*)banaction_allports = iptables-allports"
     line: "banaction_allports = nftables-allports"
   when: base_fail2ban_nftables | bool
 
