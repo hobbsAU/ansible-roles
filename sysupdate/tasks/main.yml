@@ -9,7 +9,7 @@
   include_tasks: debian.yml
   when:
     - sysupdate__enable | bool
-    - ansible_distribution == "Debian"
+    - ansible_distribution in ["Debian", "Ubuntu"]
 
 - name: Arch system update
   include_tasks: arch.yml
