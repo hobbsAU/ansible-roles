@@ -12,7 +12,7 @@ PermitRootLogin no
 StrictModes yes
 MaxAuthTries 3
 PubkeyAuthentication yes
-AuthorizedKeysFile      .ssh/authorized_keys
+AuthorizedKeysFile .ssh/authorized_keys
 HostbasedAuthentication no
 X11Forwarding no
 AllowTcpForwarding no
@@ -21,7 +21,7 @@ AllowAgentForwarding no
 IgnoreRhosts yes
 PasswordAuthentication no
 PermitEmptyPasswords no
-ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
 LogLevel VERBOSE
 AllowGroups {{ base_sshd_usergroup }}
 ClientAliveInterval 300
