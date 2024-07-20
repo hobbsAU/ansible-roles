@@ -1,0 +1,55 @@
+---
+- name: "({{ ansible_distribution }}) Update APT package cache"
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: "({{ ansible_distribution }}) APT autoremove"
+  ansible.builtin.apt:
+    autoremove: true
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
+  ansible.builtin.apt:
+    upgrade: full
+    autoremove: true
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: Install wireguard
+  ansible.builtin.apt:
+    name: wireguard-tools
+    state: present
+  become: yes
+
+- name: Setup wg0 config
+  ansible.builtin.copy:
+    src: "../conf/{{ inventory_hostname }}/wg0.conf"
+    dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
+    owner: root
+    group: root
+    mode: 0600
+  become: yes
+  notify: Restart WireGuard
+
+- name: Enable IPv4 forwarding
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    reload: yes
+
+- name: Start and enable WireGuard service
+  ansible.builtin.service:
+    name: "wg-quick@{{ wireguard_interface }}"
+    state: "{{ wireguard_service_state }}"
+    enabled: "{{ wireguard_service_enabled }}"
+

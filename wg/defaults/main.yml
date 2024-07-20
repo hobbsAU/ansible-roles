@@ -1,0 +1,6 @@
+---
+
+wireguard_service_enabled: "yes"
+wireguard_service_state: "started"
+wireguard_interface: "wg0"
+wireguard_port: 51820
