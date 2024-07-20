@@ -1,7 +1,6 @@
 Port {{ base_sshd_port }}
 AddressFamily inet
 ListenAddress {{ base_sshd_listen_address }}
-Protocol 2
 HostKeyAlgorithms ssh-ed25519
 PubkeyAcceptedKeyTypes ssh-ed25519
 KexAlgorithms curve25519-sha256@libssh.org
