@@ -43,7 +43,7 @@
 
 - name: enable fail2ban
   service:
-    name: "{{ base_sshd_service_name }}"
+    name: "fail2ban"
     state: started
     enabled: yes
   tags: service
