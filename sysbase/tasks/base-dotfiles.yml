@@ -9,7 +9,7 @@
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     create: yes
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "{{ base_user_name }}"
+    group: "{{ base_user_name }}"
     mode: 0644
   loop: "{{ base_dotfiles }}"

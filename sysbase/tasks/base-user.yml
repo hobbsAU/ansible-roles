@@ -1,0 +1,29 @@
+---
+# File: roles/base/tasks/user-config.yml
+# Desc: Configures user
+
+- name: Ensure the group exists
+  ansible.builtin.group:
+    name: "{{ base_sshd_usergroup }}"
+    state: present
+
+- name: Ensure the user exists and is part of the sudo group
+  ansible.builtin.user:
+    name: "{{ base_user_name }}"
+    shell: /bin/bash
+    skeleton: /etc/skel
+    state: present
+    groups: "sudo,{{ base_sshd_usergroup }}"
+    append: yes
+    password: "{{ base_user_password }}"
+  register: user_result
+
+- name: Provision the user's SSH key
+  ansible.builtin.authorized_key:
+    user: "{{ base_user_name }}"
+    key: "{{ base_user_sshkey }}"
+    state: present
+
+- name: Debug message to show result
+  ansible.builtin.debug:
+    msg: "User {{ base_user_name }} has been created or is already present, is part of the sudo group, and password is set. {{ user_result }}"

@@ -11,6 +11,10 @@
   include_tasks: base-packages.yml
   when: base_install_software | bool
 
+- name: Include users
+  include_tasks: base-user.yml
+  when: base_config_user | bool
+
 - name: Include sshd-config
   include_tasks: base-sshd.yml
   when: base_config_sshd | bool

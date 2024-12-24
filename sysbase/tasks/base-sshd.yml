@@ -4,9 +4,10 @@
 
 - name: configure sshd
   template:
-    src: sshd_config.j2
-    dest: "{{ base_sshd_config_basedir }}/sshd_config"
-    #dest: "{{ base_sshd_config_basedir }}/sshd_config.d/ansible.conf"
+    #src: sshd_config.j2
+    #dest: "{{ base_sshd_config_basedir }}/sshd_config"
+    src: sshd_secure.j2
+    dest: "{{ base_sshd_config_basedir }}/sshd_config.d/sshd_secure"
     owner: root
     group: root
     mode: "0400"

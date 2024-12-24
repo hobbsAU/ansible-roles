@@ -2,15 +2,16 @@
 
 # Switches
 base_install_software: true
+base_config_user: true
 base_config_sshd: true
 base_config_dotfiles: true
 base_harden_system: true
 base_config_fail2ban: true
 
 # Packages
-base_packages: ['vim', 'tar', 'aptitude', 'git', 'unattended-upgrades']
+base_packages: ['vim', 'tar', 'rsync', 'git', 'unattended-upgrades']
 base_services: ['unattended-upgrades', 'sshd']
-base_packages_removed: ['exim4*']
+#base_packages_removed: ['exim4*']
 
 # SSHD config
 base_sshd_pkg_state: "latest"
@@ -19,17 +20,17 @@ base_sshd_service_name: "sshd"
 base_sshd_port: "22"
 base_sshd_listen_address: "0.0.0.0"
 base_sshd_usergroup: "ssh-users"
-base_sshd_retries: 1
+base_sshd_retries: 2
 
 # Fail2ban config
-base_fail2ban_nftables: false
+#base_fail2ban_nftables: false
 
 # Dotfiles
 base_dotfiles:
-  - { path: "/home/{{ ansible_user }}/.bashrc", regexp: "^(.*)alias ll", line: "alias ll='ls -l'"}
-  - { path: "/home/{{ ansible_user }}/.bashrc", regexp: "^(.*)alias la", line: "alias la='ls -Al'"}
-  - { path: "/home/{{ ansible_user }}/.vimrc", regexp: "^(.*)set mouse-=a", line: "set mouse-=a"}
-  - { path: "/home/{{ ansible_user }}/.vimrc", regexp: "^(.*)syntax on", line: "syntax on"}
+  - { path: "/home/{{ base_user_name }}/.bashrc", regexp: "^(.*)alias ll", line: "alias ll='ls -l'"}
+  - { path: "/home/{{ base_user_name }}/.bashrc", regexp: "^(.*)alias la", line: "alias la='ls -Al'"}
+  - { path: "/home/{{ base_user_name }}/.vimrc", regexp: "^(.*)set mouse-=a", line: "set mouse-=a"}
+  - { path: "/home/{{ base_user_name }}/.vimrc", regexp: "^(.*)syntax on", line: "syntax on"}
   - { path: "/root/.bashrc", regexp: "^(.*)export LS_OPTIONS", line: "export LS_OPTIONS='--color=auto'"}
   - { path: "/root/.bashrc", regexp: "^(.*)alias ll=", line: "alias ll='ls $LS_OPTIONS -al'"}
   - { path: "/root/.bashrc", regexp: "^(.*)PS1", line: "PS1='${debian_chroot:+($debian_chroot)}\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '"}

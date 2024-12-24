@@ -1,0 +1,35 @@
+---
+# File: roles/sysupdate/tasks/update.yml
+# Desc: Update system and reboot if necessary
+
+- name: Update packages list
+  apt: update_cache=yes
+  
+- name: List packages to upgrade (1/2)
+  shell: apt list --upgradable
+  register: updates
+  changed_when: False
+
+- name: List packages to upgrade (2/2)
+  debug: msg="{{ updates.stdout_lines | count }} packages to upgrade ({{ updates.stdout_lines | join(', ') }})"
+  when: (updates.stdout_lines)
+
+- name: Apt Full Upgrade
+  apt:
+    upgrade: full
+    autoclean: yes
+  register: system_updated
+
+- name: Check if a reboot is needed for Debian and Ubuntu boxes
+  register: reboot_required_file
+  stat: path=/var/run/reboot-required
+
+- name: Reboot the Debian server
+  reboot:
+    msg: "Reboot initiated by Ansible due to kernel updates"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime
+  when: reboot_required_file.stat.exists

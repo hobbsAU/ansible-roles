@@ -4,32 +4,42 @@
 
 - name: install fail2ban and whois
   package:
-    name: [ 'fail2ban', 'whois' ]
+    name: [ 'fail2ban' ]
     state: present
 
 - name: configure sshd jail
   template:
-    src: jail-debian.local.j2
-    dest: "/etc/fail2ban/jail.local"
+    src: defaults-debian.conf.j2
+    dest: "/etc/fail2ban/jail.d/defaults-debian.conf"
     owner: root
     group: root
     mode: "0644"
   notify: restart fail2ban
   tags: configuration
 
-- name: Update multiport ban with nftables
-  lineinfile:
-    path: "/etc/fail2ban/jail.conf"
-    regexp: "^(.*)banaction = iptables-multiport"
-    line: "banaction = nftables-multiport"
-  when: base_fail2ban_nftables | bool
-
-- name: Update allport ban with nftables
-  lineinfile:
-    path: "/etc/fail2ban/jail.conf"
-    regexp: "^(.*)banaction_allports = iptables-allports"
-    line: "banaction_allports = nftables-allports"
-  when: base_fail2ban_nftables | bool
+# name: configure sshd jail
+# template:
+#   src: jail-debian.local.j2
+#   dest: "/etc/fail2ban/jail.local"
+#   owner: root
+#   group: root
+#   mode: "0644"
+# notify: restart fail2ban
+# tags: configuration
+#
+# name: Update multiport ban with nftables
+# lineinfile:
+#   path: "/etc/fail2ban/jail.conf"
+#   regexp: "^(.*)banaction = iptables-multiport"
+#   line: "banaction = nftables-multiport"
+# when: base_fail2ban_nftables | bool
+#
+# name: Update allport ban with nftables
+# lineinfile:
+#   path: "/etc/fail2ban/jail.conf"
+#   regexp: "^(.*)banaction_allports = iptables-allports"
+#   line: "banaction_allports = nftables-allports"
+# when: base_fail2ban_nftables | bool
 
 - name: enable fail2ban
   service:

@@ -26,4 +26,5 @@
   apt:
     name: "{{ base_packages_removed }}"
     state: absent
+  when: base_packages_removed is defined
 
