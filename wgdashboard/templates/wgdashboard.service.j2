@@ -1,0 +1,19 @@
+[Unit]
+Description=WireGuard Dashboard Service
+After=syslog.target network-online.target
+Wants=wg-quick.target
+ConditionPathIsDirectory=/etc/wireguard
+
+[Service]
+Type=forking
+PIDFile={{ wgdash_path }}/gunicorn.pid
+WorkingDirectory={{ wgdash_path }}
+ExecStart={{ wgdash_path }}/wgd.sh start
+ExecStop={{ wgdash_path }}/wgd.sh stop
+ExecReload={{ wgdash_path }}/wgd.sh restart
+TimeoutSec=120
+PrivateTmp=yes
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+---
+
+wgdash_wg_service_enabled: "yes"
+wgdash_wg_service_state: "started"
+wgdash_wg_interface: "wg0"
+wgdash_wg_port: 51820
+wgdash_config_seed: false
+wgdash_config_backup: false
+wgdash_path: "/opt/WGDashboard"
+
+# Packages
+wgdash_wg_packages: ['wireguard-tools']
+wgdash_wgdash_packages: ['git', 'iptables', 'net-tools']

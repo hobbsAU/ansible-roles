@@ -1,0 +1,8 @@
+---
+- name: Backup remote config
+  ansible.builtin.synchronize:
+    src: "/etc/wireguard/"
+    dest: "../backup/{{ inventory_hostname }}/wireguard/{{ ansible_date_time.iso8601 }}/"
+    archive: yes
+    delete: no
+  when: wgdash_config_backup | bool

@@ -1,0 +1,33 @@
+---
+- name: "({{ ansible_distribution }}) Update APT package cache"
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: "({{ ansible_distribution }}) APT autoremove"
+  ansible.builtin.apt:
+    autoremove: true
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
+  ansible.builtin.apt:
+    upgrade: full
+    autoremove: true
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: Update wireguard
+  ansible.builtin.apt:
+    name: wireguard-tools
+    state: latest
+  become: yes
+

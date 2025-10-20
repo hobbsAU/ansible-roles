@@ -1,0 +1,19 @@
+---
+# File: roles/wireguard/tasks/main.yml
+# Desc: Install, Update, Backup Wireguard on Debian
+#
+
+- name: Install Wireguard and WGDashboard
+  include_tasks: install.yml
+  when: wgdash_install | bool
+
+- name: Update Wireguard and WGDashboard
+  include_tasks: update.yml
+  when: wgdash_update | bool
+
+- name: Backup Wireguard and WGDashboard
+  include_tasks: backup.yml
+  when: wgdash_backup | bool
+
+
+
