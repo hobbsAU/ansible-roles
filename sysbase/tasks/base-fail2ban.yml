@@ -1,49 +1,39 @@
 ---
+
 # File: roles/base/tasks/base-fail2ban.yml
 # Desc: Configures and starts fail2ban
 
-- name: install fail2ban and whois
+- name: Install fail2ban (Debian).
   package:
-    name: [ 'fail2ban' ]
+    name: fail2ban
     state: present
+  when: ansible_os_family == 'Debian'
 
-- name: configure sshd jail
+- name: Copy jail custom configuration file into place.
   template:
-    src: defaults-debian.conf.j2
-    dest: "/etc/fail2ban/jail.d/defaults-debian.conf"
+    src: "{{ security_fail2ban_custom_configuration_template }}"
+    dest: /etc/fail2ban/jail.local
     owner: root
     group: root
-    mode: "0644"
-  notify: restart fail2ban
-  tags: configuration
+    mode: 644
+  notify:
+    - reload fail2ban
 
-# name: configure sshd jail
-# template:
-#   src: jail-debian.local.j2
-#   dest: "/etc/fail2ban/jail.local"
-#   owner: root
-#   group: root
-#   mode: "0644"
-# notify: restart fail2ban
-# tags: configuration
-#
-# name: Update multiport ban with nftables
-# lineinfile:
-#   path: "/etc/fail2ban/jail.conf"
-#   regexp: "^(.*)banaction = iptables-multiport"
-#   line: "banaction = nftables-multiport"
-# when: base_fail2ban_nftables | bool
-#
-# name: Update allport ban with nftables
-# lineinfile:
-#   path: "/etc/fail2ban/jail.conf"
-#   regexp: "^(.*)banaction_allports = iptables-allports"
-#   line: "banaction_allports = nftables-allports"
-# when: base_fail2ban_nftables | bool
+- name: Copy fail2ban custom configuration file into place.
+  template:
+    src: fail2ban.local.j2
+    dest: /etc/fail2ban/fail2ban.local
+    owner: root
+    group: root
+    mode: 644
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_distribution_major_version | int >= 12
+  notify:
+    - reload fail2ban
 
-- name: enable fail2ban
+- name: Ensure fail2ban is running and enabled on boot.
   service:
-    name: "fail2ban"
+    name: fail2ban
     state: started
-    enabled: yes
-  tags: service
+    enabled: true

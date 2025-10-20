@@ -4,8 +4,6 @@
 
 - name: configure sshd
   template:
-    #src: sshd_config.j2
-    #dest: "{{ base_sshd_config_basedir }}/sshd_config"
     src: sshd_secure.j2
     dest: "{{ base_sshd_config_basedir }}/sshd_config.d/sshd_secure.conf"
     owner: root
@@ -21,4 +19,3 @@
     state: started
     enabled: yes
   tags: service
-
