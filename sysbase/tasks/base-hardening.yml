@@ -2,3 +2,88 @@
 # File: roles/base/tasks/base-hardening.yml
 # Desc: Harden system and reboot if necessary
 
+- name: Update all packages to latest version
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: dist
+    autoremove: yes
+    autoclean: yes
+
+# - name: Install security packages
+#   ansible.builtin.apt:
+#     name:
+#       - aide
+#       - rkhunter
+#       - lynis
+#     state: present
+
+# Kernel hardening via sysctl
+- name: Configure kernel parameters
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop:
+    # IP forwarding
+    # - { name: 'net.ipv4.ip_forward', value: '0' }
+    # - { name: 'net.ipv6.conf.all.forwarding', value: '0' }
+    # SYN flood protection
+    - { name: 'net.ipv4.tcp_syncookies', value: '1' }
+    - { name: 'net.ipv4.tcp_max_syn_backlog', value: '2048' }
+    - { name: 'net.ipv4.tcp_synack_retries', value: '2' }
+    - { name: 'net.ipv4.tcp_syn_retries', value: '5' }
+    # IP spoofing protection
+    - { name: 'net.ipv4.conf.all.rp_filter', value: '1' }
+    - { name: 'net.ipv4.conf.default.rp_filter', value: '1' }
+    # Ignore ICMP redirects
+    - { name: 'net.ipv4.conf.all.accept_redirects', value: '0' }
+    - { name: 'net.ipv6.conf.all.accept_redirects', value: '0' }
+    - { name: 'net.ipv4.conf.all.secure_redirects', value: '0' }
+    # Ignore ICMP ping requests
+    - { name: 'net.ipv4.icmp_echo_ignore_all', value: '1' }
+    # Ignore send redirects
+    - { name: 'net.ipv4.conf.all.send_redirects', value: '0' }
+    - { name: 'net.ipv4.conf.default.send_redirects', value: '0' }
+    # Disable source packet routing
+    - { name: 'net.ipv4.conf.all.accept_source_route', value: '0' }
+    - { name: 'net.ipv6.conf.all.accept_source_route', value: '0' }
+    # Log Martians
+    - { name: 'net.ipv4.conf.all.log_martians', value: '1' }
+    # Kernel hardening
+    - { name: 'kernel.dmesg_restrict', value: '1' }
+    - { name: 'kernel.kptr_restrict', value: '2' }
+
+# Disable unnecessary services
+- name: Disable unnecessary services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  loop: "{{ services_to_disable }}"
+  when: services_to_disable | default([]) | length > 0
+  ignore_errors: yes
+
+# Set restrictive umask
+- name: Set secure umask
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: '^UMASK'
+    line: 'UMASK 027'
+
+# Disable USB storage
+- name: Disable USB storage
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/disable-usb-storage.conf
+    content: |
+      install usb-storage /bin/true
+
+- name: Check if reboot required
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
+- name: Reboot if required
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+  when: reboot_required.stat.exists

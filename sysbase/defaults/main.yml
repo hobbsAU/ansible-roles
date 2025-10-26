@@ -35,6 +35,10 @@ security_autoupdate_reboot_time: "03:00"
 security_autoupdate_mail_to: ""
 security_autoupdate_mail_on_error: true
 
+# Hardening config
+# Services to disable for hardening
+services_to_disable: []
+
 # Dotfiles
 base_dotfiles:
   - { path: "/home/{{ base_user_name }}/.bashrc", regexp: "^(.*)alias ll", line: "alias ll='ls -l'" }
