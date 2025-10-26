@@ -2,8 +2,8 @@
 # File: roles/base/tasks/dotfiles.yml
 # Desc: Add relevant lines to dotfiles and create if not present
 
-- name: Update dotfiles
-  when: ansible_distribution == "Debian"
+- name: Update user dotfiles
+  when: ansible_distribution == "Debian" and item.path is match('/home/.*')
   lineinfile:
     path: "{{ item.path }}"
     regexp: "{{ item.regexp }}"
@@ -11,5 +11,20 @@
     create: yes
     owner: "{{ base_user_name }}"
     group: "{{ base_user_name }}"
-    mode: 0644
+    mode: '0644'
+  become: yes
+  become_user: "{{ base_user_name }}"
+  loop: "{{ base_dotfiles }}"
+
+- name: Update root dotfiles
+  when: ansible_distribution == "Debian" and item.path is match('/root/.*')
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: yes
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
   loop: "{{ base_dotfiles }}"
