@@ -1,10 +1,15 @@
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+
 [sshd]
 enabled = true
 port =  {{ base_sshd_port }}
 filter  = sshd
-maxretry = {{ base_sshd_retries }}
-findtime = 86400
 bantime = -1
+findtime = 86400
+maxretry = {{ base_sshd_retries }}
 {% if ansible_os_family == 'Debian' and ansible_distribution_major_version | int >= 12 %}
 backend = systemd
 {% endif %}
