@@ -1,0 +1,32 @@
+---
+# Caddy role default variables
+
+# Installation settings
+caddy_install_dir: "/opt/caddy"
+caddy_config_dir: "/etc/caddy"
+
+# Docker image
+caddy_docker_image: "ghcr.io/hobbsau/docker-caddy:latest"
+
+# Container settings
+caddy_container_name: "caddy"
+caddy_restart_policy: "unless-stopped"
+
+# Port mappings
+caddy_http_port: "80"
+caddy_https_port: "443"
+caddy_https_udp_port: "443"
+
+# Caddy configuration
+caddy_protocols: "h1 h2 h3"
+caddy_domain: "example.com"
+caddy_email: "youremail@example.com"
+
+# Forward proxy settings
+caddy_proxy_username: "admin"
+caddy_proxy_password: "changeme"
+caddy_proxy_secret_domain: "secret.example.com"
+
+# Service management
+caddy_enable_service: true
+caddy_service_state: "started"

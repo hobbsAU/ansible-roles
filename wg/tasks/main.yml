@@ -33,11 +33,11 @@
 
 - name: Setup wg0 config
   ansible.builtin.copy:
-    src: "../conf/{{ inventory_hostname }}/wg0.conf"
+    src: "{{ wireguard_src_conf }}/{{ inventory_hostname }}/{{ wireguard_interface }}.conf"
     dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
     owner: root
     group: root
-    mode: 0600
+    mode: 600
   become: yes
   notify: Restart WireGuard
 
@@ -45,6 +45,14 @@
   ansible.builtin.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
+    state: present
+    reload: yes
+
+- name: Set TCP congestion control to BBR
+  ansible.builtin.sysctl:
+    name: net.ipv4.tcp_congestion_control
+    value: "bbr"
+    state: present
     reload: yes
 
 - name: Start and enable WireGuard service
@@ -52,4 +60,3 @@
     name: "wg-quick@{{ wireguard_interface }}"
     state: "{{ wireguard_service_state }}"
     enabled: "{{ wireguard_service_enabled }}"
-

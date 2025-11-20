@@ -1,0 +1,60 @@
+---
+# Main tasks file for caddy role
+
+- name: Ensure caddy directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ caddy_install_dir }}"
+    - "{{ caddy_install_dir }}/conf"
+    - "{{ caddy_config_dir }}"
+    - "/var/log/caddy"
+
+- name: Clone static website example into site directory
+  git:
+    repo: 'https://github.com/cloudacademy/static-website-example.git'
+    dest: "{{ caddy_install_dir }}/site"
+    version: master
+    force: yes
+
+- name: Create Caddyfile from template
+  template:
+    src: Caddyfile.j2
+    dest: "{{ caddy_config_dir }}/Caddyfile"
+    mode: '0644'
+  notify: restart caddy
+
+- name: Copy Caddyfile to docker volume mount location
+  copy:
+    src: "{{ caddy_config_dir }}/Caddyfile"
+    dest: "{{ caddy_install_dir }}/conf/Caddyfile"
+    mode: '0644'
+    remote_src: yes
+  notify: restart caddy
+
+- name: Create docker-compose.yml from template
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ caddy_install_dir }}/docker-compose.yml"
+    mode: '0644'
+  notify: restart caddy
+
+- name: Start Caddy container with docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ caddy_install_dir }}"
+    state: present
+    pull: always
+  when: caddy_enable_service | bool
+
+- name: Ensure Caddy container is running
+  community.docker.docker_container_info:
+    name: "{{ caddy_container_name }}"
+  register: caddy_container_info
+  when: caddy_enable_service | bool
+
+- name: Display Caddy container status
+  debug:
+    msg: "Caddy container is {{ caddy_container_info.container.State.Status | default('not found') }}"
+  when: caddy_enable_service | bool and caddy_container_info.exists | default(false)

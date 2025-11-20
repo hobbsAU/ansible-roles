@@ -1,0 +1,38 @@
+---
+# Example playbook demonstrating how to use the caddy role
+# Usage: ansible-playbook -i inventory example-playbook.yml
+
+- name: Deploy Caddy Forward Proxy
+  hosts: proxy_servers
+  become: yes
+
+  vars:
+    # Override default variables here or in host_vars/group_vars
+    caddy_domain: "proxy.example.com"
+    caddy_email: "admin@example.com"
+
+    # IMPORTANT: Do not store credentials in plain text!
+    # Use ansible-vault to encrypt sensitive variables
+    # Example: ansible-vault encrypt_string 'mypassword' --name 'caddy_proxy_password'
+    caddy_proxy_username: "admin"
+    caddy_proxy_password: "changeme" # Change this!
+    caddy_proxy_secret_domain: "secret.example.com"
+
+  roles:
+    - caddy
+
+# Example with multiple hosts
+- name: Deploy Caddy on multiple servers
+  hosts:
+    - proxy1.example.com
+    - proxy2.example.com
+  become: yes
+
+  roles:
+    - role: caddy
+      vars:
+        caddy_domain: "{{ inventory_hostname }}"
+        caddy_email: "admin@example.com"
+        caddy_proxy_username: "{{ vault_caddy_username }}"
+        caddy_proxy_password: "{{ vault_caddy_password }}"
+        caddy_proxy_secret_domain: "{{ vault_secret_domain }}"

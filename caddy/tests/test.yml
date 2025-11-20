@@ -1,0 +1,13 @@
+---
+# Test playbook for caddy role
+
+- hosts: localhost
+  become: yes
+  roles:
+    - role: caddy
+      vars:
+        caddy_domain: "proxy.example.com"
+        caddy_email: "admin@example.com"
+        caddy_proxy_username: "testuser"
+        caddy_proxy_password: "testpass123"
+        caddy_proxy_secret_domain: "secret.example.com"

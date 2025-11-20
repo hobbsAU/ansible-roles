@@ -1,0 +1,21 @@
+---
+services:
+  caddy:
+    image: {{ caddy_docker_image }}
+    container_name: {{ caddy_container_name }}
+    restart: {{ caddy_restart_policy }}
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "{{ caddy_http_port }}:80"
+      - "{{ caddy_https_port }}:443"
+      - "{{ caddy_https_udp_port }}:443/udp"
+    volumes:
+      - {{ caddy_install_dir }}/conf:/etc/caddy
+      - {{ caddy_install_dir }}/site:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

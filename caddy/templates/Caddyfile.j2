@@ -1,0 +1,28 @@
+{
+	admin off
+	log {
+		output file /var/log/caddy/access.log
+		level INFO
+	}
+	servers :443 {
+		protocols {{ caddy_protocols }}
+	}
+}
+
+:80 {
+	redir https://{host}{uri} permanent
+}
+
+:443, {{ caddy_domain }}
+tls {{ caddy_email }}
+route {
+	forward_proxy {
+		basic_auth {{ caddy_proxy_username }} {{ caddy_proxy_password }}
+		hide_ip
+		hide_via
+		probe_resistance {{ caddy_proxy_secret_domain }}
+	}
+	file_server {
+		root /srv
+	}
+}

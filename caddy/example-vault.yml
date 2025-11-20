@@ -1,0 +1,7 @@
+# Example vault file - encrypt this with: ansible-vault encrypt vault.yml
+# Then run playbook with: ansible-playbook -i inventory playbook.yml --ask-vault-pass
+---
+vault_caddy_username: "admin"
+vault_caddy_password: "SuperSecurePassword123!"
+vault_secret_domain: "mysecret.example.com"
+vault_caddy_email: "admin@example.com"

@@ -1,0 +1,5 @@
+---
+
+
+# Variables for caddy role
+# Override these in defaults/main.yml or in your playbook
