@@ -1,0 +1,79 @@
+---
+# Main tasks file for samba role
+
+- name: Install Samba packages
+  apt:
+    name: "{{ samba_packages }}"
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Ensure sambashare group exists
+  group:
+    name: sambashare
+    state: present
+  become: yes
+
+- name: Ensure Samba data directory exists
+  file:
+    path: "{{ samba_data_path }}"
+    state: directory
+    owner: "{{ samba_data_owner }}"
+    group: "{{ samba_data_group }}"
+    mode: "{{ samba_data_mode }}"
+  become: yes
+
+- name: Deploy Samba configuration file
+  template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  become: yes
+  notify: restart samba
+
+- name: Check if Samba user exists
+  shell: "pdbedit -L | grep -q '^{{ samba_username }}:'"
+  register: samba_user_exists
+  failed_when: false
+  changed_when: false
+  become: yes
+
+- name: Create Unix user for Samba
+  user:
+    name: "{{ samba_username }}"
+    system: yes
+    create_home: no
+    shell: /usr/sbin/nologin
+    groups: sambashare
+    append: yes
+  become: yes
+  when: samba_user_exists.rc != 0
+
+- name: Set Samba password for user
+  shell: |
+    (echo "{{ samba_password }}"; echo "{{ samba_password }}") | smbpasswd -a -s {{ samba_username }}
+  become: yes
+  when: samba_user_exists.rc != 0
+  no_log: true
+
+- name: Enable Samba user
+  shell: "smbpasswd -e {{ samba_username }}"
+  become: yes
+  when: samba_user_exists.rc != 0
+
+- name: Ensure Samba services are enabled and started
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop: "{{ samba_services }}"
+  become: yes
+
+- name: Validate Samba configuration
+  command: testparm -s
+  register: testparm_output
+  changed_when: false
+  become: yes

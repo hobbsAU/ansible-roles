@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  author: hobbsAU
+  description: Samba file server configuration and deployment
+  company: Individual
+
+  license: GPL-3.0-only
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - samba
+    - fileserver
+    - smb
+
+dependencies: []

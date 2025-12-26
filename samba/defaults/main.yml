@@ -1,0 +1,35 @@
+---
+# Samba role default variables
+
+# Samba packages to install
+samba_packages:
+  - samba
+  - samba-common-bin
+  - avahi-daemon
+
+# Data directory configuration
+samba_data_path: "/mnt/data"
+samba_data_owner: "root"
+samba_data_group: "sambashare"
+samba_data_mode: "0775"
+
+# Samba user configuration
+samba_username: "smbuser"
+samba_password: "changeme"
+
+# Samba configuration
+samba_workgroup: "WORKGROUP"
+samba_server_string: "Samba Server"
+samba_netbios_name: "SAMBA-SERVER"
+
+# Share configuration
+samba_share_name: "Data"
+samba_share_comment: "File share"
+samba_share_browseable: "yes"
+samba_share_read_only: "no"
+samba_share_guest_ok: "no"
+
+# Service configuration
+samba_services:
+  - smbd
+  - nmbd

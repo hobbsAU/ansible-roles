@@ -1,0 +1,9 @@
+---
+# Handlers for samba role
+
+- name: restart samba
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop: "{{ samba_services }}"
+  become: yes
