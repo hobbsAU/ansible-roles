@@ -1,5 +1,5 @@
 ---
-- name: "({{ ansible_distribution }}) Update APT package cache"
+- name: "({{ ansible_facts['distribution'] }}) Update APT package cache"
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
@@ -8,7 +8,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) APT autoremove"
+- name: "({{ ansible_facts['distribution'] }}) APT autoremove"
   ansible.builtin.apt:
     autoremove: true
   retries: 2
@@ -16,7 +16,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
+- name: "({{ ansible_facts['distribution'] }}) Upgrade APT to the latest packages"
   ansible.builtin.apt:
     upgrade: full
     autoremove: true
@@ -39,14 +39,13 @@
   become: yes
   when: wgdash_wgdash_packages is defined
 
-
 - name: Seed wg0 config
   ansible.builtin.copy:
     src: "../conf/{{ inventory_hostname }}/wg0.conf"
     dest: "/etc/wireguard/{{ wgdash_wg_interface }}.conf"
     owner: root
     group: root
-    mode: 0600
+    mode: 600
   become: yes
   notify: Restart WireGuard
   when: wgdash_config_seed | bool

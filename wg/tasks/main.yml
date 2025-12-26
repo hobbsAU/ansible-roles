@@ -1,5 +1,5 @@
 ---
-- name: "({{ ansible_distribution }}) Update APT package cache"
+- name: "({{ ansible_facts['distribution'] }}) Update APT package cache"
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
@@ -8,7 +8,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) APT autoremove"
+- name: "({{ ansible_facts['distribution'] }}) APT autoremove"
   ansible.builtin.apt:
     autoremove: true
   retries: 2
@@ -16,7 +16,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
+- name: "({{ ansible_facts['distribution'] }}) Upgrade APT to the latest packages"
   ansible.builtin.apt:
     upgrade: full
     autoremove: true
