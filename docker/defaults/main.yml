@@ -57,3 +57,14 @@ docker_users: []
 
 # Docker daemon options as a dict
 docker_daemon_options: {}
+
+# docker_daemon_options:
+#   data-root: "/var/lib/docker"
+#   log-driver: "json-file"
+#   log-opts:
+#     max-size: "10m"
+#     max-file: "3"
+#   ipv6: true
+#   fixed-cidr-v6: "fd00:dead:beef:c0::/80"
+#   experimental: true
+#   ip6tables: true
