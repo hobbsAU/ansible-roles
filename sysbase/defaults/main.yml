@@ -8,6 +8,7 @@ base_config_dotfiles: true
 base_harden_system: true
 base_config_fail2ban: true
 base_autopdate_system: true
+base_config_sysctl: true
 
 # Packages
 base_packages: [ 'vim', 'tar', 'rsync', 'git' ]
@@ -17,10 +18,11 @@ base_services: [ 'sshd' ]
 # SSHD config
 base_sshd_pkg_state: "latest"
 base_sshd_config_basedir: "/etc/ssh"
-base_sshd_service_name: "sshd"
+base_sshd_service_name: "ssh"
 base_sshd_port: "22"
 base_sshd_listen_address: "0.0.0.0"
 base_sshd_usergroup: "ssh-users"
+base_sshd_permit_root_login: "no"
 base_sshd_retries: 2
 
 # Fail2ban config
@@ -38,6 +40,12 @@ security_autoupdate_mail_on_error: true
 # Hardening config
 # Services to disable for hardening
 services_to_disable: []
+
+# Sysctl config
+base_sysctl_overrides: []
+# base_sysctl_overrides:
+#   - { name: "net.ipv4.ip_forward", value: "1" }
+#   - { name: "vm.swappiness", value: "10" }
 
 # Dotfiles
 base_dotfiles:

@@ -31,8 +31,12 @@
   include_tasks: base-hardening.yml
   when: base_harden_system | bool
 
+- name: Include sysctl config
+  include_tasks: base-sysctl.yml
+  when: base_config_sysctl | bool
+
 - name: Include autoupdate system
   include_tasks: base-autoupdate.yml
   when:
-    - ansible_os_family == 'Debian'
+    - ansible_facts["os_family"] == 'Debian'
     - base_autopdate_system | bool

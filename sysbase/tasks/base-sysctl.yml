@@ -1,0 +1,13 @@
+---
+# File: roles/base/tasks/base-sysctl.yml
+# Desc: Configure sysctl overrides
+
+- name: Apply sysctl overrides
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+    sysctl_set: yes
+  loop: "{{ base_sysctl_overrides }}"
+  when: base_sysctl_overrides | length > 0

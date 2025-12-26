@@ -15,7 +15,7 @@
     state: present
     groups: "sudo,{{ base_sshd_usergroup }}"
     append: yes
-    password: "{{ base_user_password }}"
+    password: "{{ base_user_password | default(omit) }}"
   register: user_result
 
 - name: Provision the user's SSH key
