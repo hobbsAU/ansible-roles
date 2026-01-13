@@ -8,13 +8,50 @@
     autoremove: yes
     update_cache: yes
     cache_valid_time: 3600
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tags:
+    - sysupdate
+    - apt
+  changed_when: false
+  register: apt_cache
+
+- name: List upgradable packages
+  command: apt list --upgradable
+  register: apt_upgradable
+  changed_when: false
+  failed_when: false
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tags:
+    - sysupdate
+    - apt
+
+- name: Show packages that would be upgraded
+  debug:
+    msg: "{{ (apt_upgradable.stdout_lines[1:] | default([])) | join(', ') }}"
+  when: apt_upgradable.stdout is defined and (apt_upgradable.stdout_lines[1:] | default([]) | length) > 0
+  tags:
+    - sysupdate
+    - apt
+
+- name: Perform upgrade (dist)
+  apt:
     upgrade: dist
+    dpkg_options: 'force-confdef,force-confold'
+    autoremove: yes
+    autoclean: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  tags:
+    - sysupdate
+    - apt
   register: upgrade_result
 
-- name: Show number of packages to upgrade
+- name: Show number of packages upgraded
   debug:
-    msg: "{{ upgrade_result.changes.packages | length }} packages to upgrade: {{ upgrade_result.changes.packages | join(', ') }}"
-  when: upgrade_result.changes.packages is defined
+    msg: "{{ (upgrade_result.changes.packages | default([]) | length) }} packages upgraded: {{ (upgrade_result.changes.packages | default([])) | join(', ') }}"
+  when: upgrade_result is defined and (upgrade_result.changes.packages | default([]) | length) > 0
 
 - name: Check if a reboot is required
   stat:
@@ -28,4 +65,6 @@
     reboot_timeout: 300
     post_reboot_delay: 30
     test_command: uptime
-  when: reboot_needed.stat.exists
+  when:
+    - reboot_needed.stat.exists
+    - sysupdate__reboot | bool
