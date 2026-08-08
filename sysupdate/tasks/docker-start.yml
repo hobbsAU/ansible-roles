@@ -1,0 +1,19 @@
+---
+# File: sysupdate/tasks/docker-start.yml
+# Desc: Start Docker again after an upgrade and/or reboot, daemon before socket.
+
+- name: Start Docker
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: started
+  loop: "{{ sysupdate__docker_stop_units | reverse | list }}"
+  tags:
+    - sysupdate
+    - docker
+
+- name: Clear the stopped-by-sysupdate marker
+  ansible.builtin.set_fact:
+    sysupdate__docker_stopped: false
+  tags:
+    - sysupdate
+    - docker

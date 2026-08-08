@@ -1,0 +1,41 @@
+---
+# File: sysupdate/tasks/docker-facts.yml
+# Desc: Work out whether Docker is installed on this host and whether it is
+#       currently running, so we know what to stop and what to start again.
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+  tags:
+    - sysupdate
+    - docker
+
+# No module equivalent: service_facts only reports .service units, so it cannot
+# tell us whether docker.socket is installed.
+- name: Find which Docker units exist  # noqa: command-instead-of-module
+  ansible.builtin.command: "systemctl list-unit-files --no-legend {{ sysupdate__docker_units | join(' ') }}"
+  register: sysupdate__docker_unit_files
+  changed_when: false
+  failed_when: false
+  tags:
+    - sysupdate
+    - docker
+
+- name: Record Docker state
+  ansible.builtin.set_fact:
+    sysupdate__docker_stop_units: "{{ sysupdate__docker_units | select('in', found_units) | list }}"
+    sysupdate__docker_present: "{{ found_units | length > 0 }}"
+    sysupdate__docker_running: "{{ ansible_facts.services['docker.service'].state | default('') == 'running' }}"
+  vars:
+    found_units: "{{ sysupdate__docker_unit_files.stdout_lines | map('regex_replace', '^(\\S+).*$', '\\1') | list }}"
+  tags:
+    - sysupdate
+    - docker
+
+- name: Show Docker state
+  ansible.builtin.debug:
+    msg: >-
+      Docker units: {{ sysupdate__docker_stop_units | join(', ') | default('none', true) }}
+      (running: {{ sysupdate__docker_running }})
+  tags:
+    - sysupdate
+    - docker

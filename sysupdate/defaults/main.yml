@@ -4,3 +4,19 @@
 # Switches
 sysupdate__enable: true
 sysupdate__reboot: true
+
+# Stop Docker before upgrading Docker packages and before a reboot, then start
+# it again afterwards so containers shut down cleanly instead of being killed.
+sysupdate__docker_manage: true
+
+# Units to stop, in order. Started again in reverse order.
+# The socket is stopped first so it cannot re-activate the daemon.
+sysupdate__docker_units:
+  - docker.socket
+  - docker.service
+
+# Package name prefixes that count as a "Docker upgrade"
+sysupdate__docker_packages:
+  - docker
+  - containerd
+  - runc

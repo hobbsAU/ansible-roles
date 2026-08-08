@@ -2,17 +2,23 @@
 # tasks file for sysupdate
 
 - name: Print distribution
-  debug:
+  ansible.builtin.debug:
     msg: "{{ ansible_facts['distribution'] | default('') }}"
+  tags:
+    - sysupdate
 
 - name: Debian system update
-  include_tasks: debian.yml
+  ansible.builtin.include_tasks: debian.yml
   when:
     - sysupdate__enable | bool
     - ansible_facts['distribution'] in ["Debian", "Ubuntu"]
+  tags:
+    - sysupdate
 
 - name: Arch system update
-  include_tasks: arch.yml
+  ansible.builtin.include_tasks: arch.yml
   when:
     - sysupdate__enable | bool
     - ansible_facts['distribution'] == "Archlinux"
+  tags:
+    - sysupdate

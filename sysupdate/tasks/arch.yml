@@ -2,18 +2,111 @@
 # File: sysupdate/tasks/arch.yml
 # Desc: Update system and reboot if necessary
 
-- name: Full system upgrade
-  pacman:
-    update_cache: yes
-    upgrade: yes
-  register: result
+- name: Update package cache
+  community.general.pacman:
+    update_cache: true
+  changed_when: false
+  tags:
+    - sysupdate
+    - pacman
 
-- name: Show Output
-  debug: 
-    msg: "{{ item.key }}: {{ item.value }}"
-  loop: "{{ lookup('dict', result) }}"
+# pacman -Qu exits 1 when there is nothing to upgrade
+- name: List upgradable packages
+  ansible.builtin.command: pacman -Qu
+  register: pacman_upgradable
+  changed_when: false
+  failed_when: pacman_upgradable.rc not in [0, 1]
+  tags:
+    - sysupdate
+    - pacman
+
+- name: Show packages that would be upgraded
+  ansible.builtin.debug:
+    msg: "{{ (pacman_upgradable.stdout_lines | default([])) | join(', ') }}"
+  when: (pacman_upgradable.stdout_lines | default([]) | length) > 0
+  tags:
+    - sysupdate
+    - pacman
+
+- name: Gather Docker facts
+  ansible.builtin.include_tasks: docker-facts.yml
+  when: sysupdate__docker_manage | bool
+  tags:
+    - sysupdate
+    - docker
+
+- name: Determine whether the upgrade includes Docker packages
+  ansible.builtin.set_fact:
+    sysupdate__docker_upgrades: "{{ pending | select('match', docker_re) | list }}"
+  vars:
+    pending: "{{ (pacman_upgradable.stdout_lines | default([])) | map('regex_replace', '^(\\S+).*$', '\\1') | list }}"
+    docker_re: "({{ sysupdate__docker_packages | join('|') }})"
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_present | default(false) | bool
+  tags:
+    - sysupdate
+    - docker
+
+- name: Stop Docker before upgrading Docker packages
+  ansible.builtin.include_tasks: docker-stop.yml
+  vars:
+    sysupdate__docker_stop_reason: "upgrading {{ sysupdate__docker_upgrades | join(', ') }}"
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_present | default(false) | bool
+    - sysupdate__docker_running | default(false) | bool
+    - (sysupdate__docker_upgrades | default([]) | length) > 0
+  tags:
+    - sysupdate
+    - docker
+
+- name: Full system upgrade
+  community.general.pacman:
+    upgrade: true
+  register: result
+  tags:
+    - sysupdate
+    - pacman
+
+# Run unconditionally rather than only when we did not already stop Docker:
+# the package upgrade itself may have started the daemon again.
+- name: Stop Docker before reboot
+  ansible.builtin.include_tasks: docker-stop.yml
+  vars:
+    sysupdate__docker_stop_reason: "reboot pending"
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_present | default(false) | bool
+    - result is changed
+    - sysupdate__reboot | bool
+  tags:
+    - sysupdate
+    - docker
+    - reboot
 
 - name: Reboot
-  reboot:
-  when: (result is changed) and (sysupdate__enable | bool)
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible due to package updates"
+    connect_timeout: 5
+    reboot_timeout: 300
+    post_reboot_delay: 30
+    test_command: uptime
+  when:
+    - result is changed
+    - sysupdate__reboot | bool
+  tags:
+    - sysupdate
+    - reboot
 
+# Covers both paths: stopped for a Docker upgrade, and stopped for a reboot.
+# Only restores Docker if it was running before we touched it.
+- name: Start Docker again
+  ansible.builtin.include_tasks: docker-start.yml
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_stopped | default(false) | bool
+    - sysupdate__docker_running | default(false) | bool
+  tags:
+    - sysupdate
+    - docker

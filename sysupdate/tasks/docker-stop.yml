@@ -1,0 +1,21 @@
+---
+# File: sysupdate/tasks/docker-stop.yml
+# Desc: Stop Docker so running containers are shut down cleanly.
+#       The socket is stopped first, otherwise it re-activates the daemon.
+#       Callers may set sysupdate__docker_stop_reason for the log message.
+
+- name: "Stop Docker: {{ sysupdate__docker_stop_reason | default('maintenance') }}"
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ sysupdate__docker_stop_units }}"
+  tags:
+    - sysupdate
+    - docker
+
+- name: Remember that sysupdate stopped Docker
+  ansible.builtin.set_fact:
+    sysupdate__docker_stopped: true
+  tags:
+    - sysupdate
+    - docker

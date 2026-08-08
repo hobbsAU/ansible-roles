@@ -1,38 +1,75 @@
-Role Name
+sysupdate
 =========
 
-A brief description of the role goes here.
+Updates all packages on a host and reboots it if required.
+
+Supports Debian/Ubuntu (`apt`) and Arch Linux (`pacman`).
+
+Docker handling
+---------------
+
+Stopping the Docker daemon out from under running containers is disruptive, and
+upgrading the Docker packages while the daemon is running leaves containers in
+an inconsistent state. When Docker is present on the host, this role will:
+
+* stop Docker **before** the upgrade, if the upgrade includes any Docker
+  packages (`docker*`, `containerd*`, `runc` by default);
+* stop Docker **before** a reboot, so containers shut down cleanly rather than
+  being killed by the reboot;
+* start Docker **after** the upgrade and/or reboot.
+
+`docker.socket` is stopped before `docker.service` so socket activation cannot
+bring the daemon straight back up, and they are started again in reverse order.
+
+Docker is only started again if it was running before the role touched it, so a
+deliberately stopped daemon stays stopped.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None beyond a systemd-based host. Docker handling is skipped automatically on
+hosts where no Docker units are installed.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+| Variable | Default | Description |
+| --- | --- | --- |
+| `sysupdate__enable` | `true` | Master switch for the role. |
+| `sysupdate__reboot` | `true` | Reboot the host if the update requires it. |
+| `sysupdate__docker_manage` | `true` | Stop/start Docker around upgrades and reboots. |
+| `sysupdate__docker_units` | `[docker.socket, docker.service]` | Units to stop, in order. Started again in reverse. |
+| `sysupdate__docker_packages` | `[docker, containerd, runc]` | Package name prefixes that count as a Docker upgrade. |
+
+Tags
+----
+
+All tasks carry the `sysupdate` tag. Additional tags: `apt`, `pacman`, `docker`,
+`reboot`.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+    - hosts: servers
+      become: true
+      roles:
+        - role: sysupdate
+
+Update everything but never reboot, and leave Docker alone:
 
     - hosts: servers
+      become: true
       roles:
-         - { role: username.rolename, x: 42 }
+        - role: sysupdate
+          sysupdate__reboot: false
+          sysupdate__docker_manage: false
 
 License
 -------
 
 BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).

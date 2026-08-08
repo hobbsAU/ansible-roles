@@ -1,12 +1,12 @@
 ---
-# File: roles/sysupdate/tasks/update.yml
+# File: roles/sysupdate/tasks/debian.yml
 # Desc: Update system and reboot if necessary
 
 - name: Update and list upgradable packages
-  apt:
-    autoclean: yes
-    autoremove: yes
-    update_cache: yes
+  ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
+    update_cache: true
     cache_valid_time: 3600
   environment:
     DEBIAN_FRONTEND: noninteractive
@@ -17,7 +17,7 @@
   register: apt_cache
 
 - name: List upgradable packages
-  command: apt list --upgradable
+  ansible.builtin.command: apt list --upgradable
   register: apt_upgradable
   changed_when: false
   failed_when: false
@@ -28,19 +28,52 @@
     - apt
 
 - name: Show packages that would be upgraded
-  debug:
+  ansible.builtin.debug:
     msg: "{{ (apt_upgradable.stdout_lines[1:] | default([])) | join(', ') }}"
   when: apt_upgradable.stdout is defined and (apt_upgradable.stdout_lines[1:] | default([]) | length) > 0
   tags:
     - sysupdate
     - apt
 
+- name: Gather Docker facts
+  ansible.builtin.include_tasks: docker-facts.yml
+  when: sysupdate__docker_manage | bool
+  tags:
+    - sysupdate
+    - docker
+
+- name: Determine whether the upgrade includes Docker packages
+  ansible.builtin.set_fact:
+    sysupdate__docker_upgrades: "{{ pending | select('match', docker_re) | list }}"
+  vars:
+    pending: "{{ (apt_upgradable.stdout_lines[1:] | default([])) | map('regex_replace', '/.*$', '') | list }}"
+    docker_re: "({{ sysupdate__docker_packages | join('|') }})"
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_present | default(false) | bool
+  tags:
+    - sysupdate
+    - docker
+
+- name: Stop Docker before upgrading Docker packages
+  ansible.builtin.include_tasks: docker-stop.yml
+  vars:
+    sysupdate__docker_stop_reason: "upgrading {{ sysupdate__docker_upgrades | join(', ') }}"
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_present | default(false) | bool
+    - sysupdate__docker_running | default(false) | bool
+    - (sysupdate__docker_upgrades | default([]) | length) > 0
+  tags:
+    - sysupdate
+    - docker
+
 - name: Perform upgrade (dist)
-  apt:
+  ansible.builtin.apt:
     upgrade: dist
     dpkg_options: 'force-confdef,force-confold'
-    autoremove: yes
-    autoclean: yes
+    autoremove: true
+    autoclean: true
   environment:
     DEBIAN_FRONTEND: noninteractive
   tags:
@@ -49,17 +82,42 @@
   register: upgrade_result
 
 - name: Show number of packages upgraded
-  debug:
-    msg: "{{ (upgrade_result.changes.packages | default([]) | length) }} packages upgraded: {{ (upgrade_result.changes.packages | default([])) | join(', ') }}"
+  ansible.builtin.debug:
+    msg: >-
+      {{ upgraded | length }} packages upgraded: {{ upgraded | join(', ') }}
+  vars:
+    upgraded: "{{ upgrade_result.changes.packages | default([]) }}"
   when: upgrade_result is defined and (upgrade_result.changes.packages | default([]) | length) > 0
+  tags:
+    - sysupdate
+    - apt
 
 - name: Check if a reboot is required
-  stat:
+  ansible.builtin.stat:
     path: /var/run/reboot-required
   register: reboot_needed
+  tags:
+    - sysupdate
+    - reboot
+
+# Run unconditionally rather than only when we did not already stop Docker:
+# the package upgrade itself may have started the daemon again.
+- name: Stop Docker before reboot
+  ansible.builtin.include_tasks: docker-stop.yml
+  vars:
+    sysupdate__docker_stop_reason: "reboot pending"
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_present | default(false) | bool
+    - reboot_needed.stat.exists
+    - sysupdate__reboot | bool
+  tags:
+    - sysupdate
+    - docker
+    - reboot
 
 - name: Reboot if necessary
-  reboot:
+  ansible.builtin.reboot:
     msg: "Reboot initiated by Ansible due to kernel updates"
     connect_timeout: 5
     reboot_timeout: 300
@@ -68,3 +126,18 @@
   when:
     - reboot_needed.stat.exists
     - sysupdate__reboot | bool
+  tags:
+    - sysupdate
+    - reboot
+
+# Covers both paths: stopped for a Docker upgrade, and stopped for a reboot.
+# Only restores Docker if it was running before we touched it.
+- name: Start Docker again
+  ansible.builtin.include_tasks: docker-start.yml
+  when:
+    - sysupdate__docker_manage | bool
+    - sysupdate__docker_stopped | default(false) | bool
+    - sysupdate__docker_running | default(false) | bool
+  tags:
+    - sysupdate
+    - docker
