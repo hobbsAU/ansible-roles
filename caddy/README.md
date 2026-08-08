@@ -44,8 +44,8 @@ Port mappings for HTTP, HTTPS, and HTTP/3 (QUIC).
 ### Caddy Configuration
 
 ```yaml
-caddy_domain: "perth.amivah.com"
-caddy_email: "perth@amivah.com"
+caddy_domain: "example.com"
+caddy_email: "youremail@example.com"
 ```
 
 Domain name and email for TLS certificates.

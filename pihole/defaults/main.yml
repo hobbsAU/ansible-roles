@@ -33,7 +33,7 @@ user_pihole: "pihole"
 group_pihole: "pihole"
 
 # Generate with echo -n P@ssw0rd | sha256sum | awk '{printf "%s",$1 }' | sha256sum
-web_password: "5536c470d038c11793b535e8c1176817c001d6f20a4704fa7908939be82e2922"
+web_password: "0e69e6a4038df88d4c62c837edd7e04a95ea6368bca9d469e00ad766a2266770"
 
 dhcp_active: false
 dhcp_start: 192.168.1.10
