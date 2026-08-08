@@ -1,0 +1,32 @@
+---
+# File: dockermakeupdate/tasks/prune.yml
+# Desc: Reclaim disk space once everything is confirmed up. The Makefile's
+#       prune target must use "docker system prune -af": without -f the
+#       confirmation prompt aborts in a non-interactive session. Volumes are
+#       never touched (prune does not remove them without --volumes).
+
+- name: Prune unused Docker data (make prune)
+  ansible.builtin.command: make prune
+  args:
+    chdir: "{{ dockermakeupdate__dir }}"
+  environment:
+    TERM: dumb
+  async: "{{ dockermakeupdate__make_timeout | int }}"
+  poll: 15
+  register: dockermakeupdate__prune_result
+  changed_when: "'Total reclaimed space: 0B' not in dockermakeupdate__prune_result.stdout"
+  when: dockermakeupdate__prune | bool
+  tags:
+    - dockermakeupdate
+    - prune
+
+- name: Show reclaimed space
+  ansible.builtin.debug:
+    msg: >-
+      {{ dockermakeupdate__prune_result.stdout_lines
+         | select('search', 'Total reclaimed space')
+         | list | last | default('Total reclaimed space: unknown') }}
+  when: dockermakeupdate__prune_result.stdout is defined
+  tags:
+    - dockermakeupdate
+    - prune

@@ -1,0 +1,53 @@
+---
+# File: dockermakeupdate/tasks/pull.yml
+# Desc: Pull new images while services keep running, so downtime is limited
+#       to the restart itself. TERM is set so the Makefile's tput calls do not
+#       clutter stderr, and make runs async so long pulls cannot stall the
+#       SSH connection.
+
+- name: Snapshot images before pull
+  ansible.builtin.shell: set -o pipefail; docker images --no-trunc -q | sort -u
+  args:
+    executable: /bin/bash
+  register: dockermakeupdate__images_before
+  changed_when: false
+  tags:
+    - dockermakeupdate
+    - pull
+
+# Image changes are reported by "Show newly pulled images" below; the service
+# restart itself is reported as changed by the down/up tasks.
+- name: Pull latest images (make pull)
+  ansible.builtin.command: make pull
+  args:
+    chdir: "{{ dockermakeupdate__dir }}"
+  environment:
+    TERM: dumb
+  async: "{{ dockermakeupdate__make_timeout | int }}"
+  poll: 15
+  register: dockermakeupdate__pull_result
+  changed_when: false
+  tags:
+    - dockermakeupdate
+    - pull
+
+- name: Snapshot images after pull
+  ansible.builtin.shell: set -o pipefail; docker images --no-trunc -q | sort -u
+  args:
+    executable: /bin/bash
+  register: dockermakeupdate__images_after
+  changed_when: false
+  tags:
+    - dockermakeupdate
+    - pull
+
+- name: Show newly pulled images
+  ansible.builtin.debug:
+    msg: "{{ dockermakeupdate__new_images | length }} new image(s) downloaded"
+  vars:
+    dockermakeupdate__new_images: >-
+      {{ (dockermakeupdate__images_after.stdout_lines | default([]))
+         | difference(dockermakeupdate__images_before.stdout_lines | default([])) }}
+  tags:
+    - dockermakeupdate
+    - pull

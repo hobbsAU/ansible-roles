@@ -1,0 +1,59 @@
+---
+# File: dockermakeupdate/tasks/health.yml
+# Desc: Gate for prune: every compose-managed container on the host must be
+#       running and, where a healthcheck is defined, healthy. Failing here
+#       fails the play and prune never runs, so the previous images stay
+#       available for a rollback.
+
+# "docker system prune -a" with no containers running would delete every image
+# on the host, so an empty container list must never count as "all up".
+- name: Count running compose containers
+  ansible.builtin.shell: >-
+    set -o pipefail;
+    docker ps -q --filter label=com.docker.compose.project | wc -l
+  args:
+    executable: /bin/bash
+  register: dockermakeupdate__container_count
+  changed_when: false
+  tags:
+    - dockermakeupdate
+    - up
+    - prune
+
+- name: Verify at least one compose container is running
+  ansible.builtin.assert:
+    that:
+      - dockermakeupdate__container_count.stdout | int > 0
+    quiet: true
+    fail_msg: >-
+      No compose containers are running on this host. Refusing to continue:
+      pruning now would remove every image.
+  when: not ansible_check_mode
+  tags:
+    - dockermakeupdate
+    - up
+    - prune
+
+# Lists every compose-labelled container (including stopped ones) that is not
+# running, or that defines a healthcheck and is not healthy. Retries until the
+# list is empty, so healthchecks get their start period before we give up.
+- name: Wait until all compose containers are running and healthy
+  ansible.builtin.shell: >-
+    set -o pipefail;
+    docker ps -aq --filter label=com.docker.compose.project
+    | xargs -r docker inspect --format
+    {% raw %}'{{ .Name }} {{ .State.Status }} {{ if .State.Health }}{{ .State.Health.Status }}{{ else }}none{{ end }}'{% endraw %}
+    | awk '$2 != "running" || ($3 != "none" && $3 != "healthy")'
+  args:
+    executable: /bin/bash
+  register: dockermakeupdate__health
+  until: dockermakeupdate__health.stdout | length == 0
+  retries: >-
+    {{ ((dockermakeupdate__health_timeout | int)
+        / (dockermakeupdate__health_delay | int)) | round(0, 'ceil') | int }}
+  delay: "{{ dockermakeupdate__health_delay | int }}"
+  changed_when: false
+  tags:
+    - dockermakeupdate
+    - up
+    - prune

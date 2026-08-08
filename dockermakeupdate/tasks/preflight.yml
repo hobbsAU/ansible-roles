@@ -1,0 +1,64 @@
+---
+# File: dockermakeupdate/tasks/preflight.yml
+# Desc: Fail early with a clear message if the host is not ready, instead of
+#       letting make produce a cryptic error halfway through the update.
+
+- name: Check for the Makefile
+  ansible.builtin.stat:
+    path: "{{ dockermakeupdate__dir }}/Makefile"
+  register: dockermakeupdate__makefile
+  tags:
+    - dockermakeupdate
+    - pull
+    - down
+    - up
+    - prune
+
+# The checks below are read-only, so they also run in check mode to give a
+# meaningful "would this host be ready" answer.
+- name: Check that make is installed
+  ansible.builtin.command: make --version
+  register: dockermakeupdate__make_check
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags:
+    - dockermakeupdate
+    - pull
+    - down
+    - up
+    - prune
+
+- name: Check that the Docker daemon is running
+  ansible.builtin.command: docker info
+  register: dockermakeupdate__docker_check
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  tags:
+    - dockermakeupdate
+    - pull
+    - down
+    - up
+    - prune
+
+- name: Verify the host is ready
+  ansible.builtin.assert:
+    that:
+      - dockermakeupdate__makefile.stat.exists
+      - dockermakeupdate__make_check.rc == 0
+      - dockermakeupdate__docker_check.rc == 0
+    quiet: true
+    fail_msg: >-
+      Host is not ready:
+      Makefile at {{ dockermakeupdate__dir }}/Makefile
+      {{ 'found' if dockermakeupdate__makefile.stat.exists else 'MISSING' }},
+      make {{ 'available' if dockermakeupdate__make_check.rc == 0 else 'NOT AVAILABLE' }},
+      docker daemon {{ 'running' if dockermakeupdate__docker_check.rc == 0
+      else 'NOT RUNNING (' ~ dockermakeupdate__docker_check.stderr | default('') ~ ')' }}
+  tags:
+    - dockermakeupdate
+    - pull
+    - down
+    - up
+    - prune

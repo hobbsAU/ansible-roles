@@ -1,0 +1,17 @@
+---
+# File: dockermakeupdate/tasks/up.yml
+# Desc: Start every compose project in the host's PROJECTS_all group.
+
+- name: Start compose projects (make up)
+  ansible.builtin.command: make up
+  args:
+    chdir: "{{ dockermakeupdate__dir }}"
+  environment:
+    TERM: dumb
+  async: "{{ dockermakeupdate__make_timeout | int }}"
+  poll: 15
+  register: dockermakeupdate__up_result
+  changed_when: true
+  tags:
+    - dockermakeupdate
+    - up

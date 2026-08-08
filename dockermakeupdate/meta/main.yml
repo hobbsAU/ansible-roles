@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: hobbsAU
+  description: Update Docker Compose projects driven by the host's Makefile
+  company: Individual
+
+  license: GPL-3.0-only
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Debian
+      versions:
+        - all
+
+  galaxy_tags: []
+
+dependencies: []

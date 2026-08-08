@@ -1,0 +1,22 @@
+---
+# defaults file for dockermakeupdate
+
+# Switches
+dockermakeupdate__enable: true
+
+# Prune unused Docker data after a successful update. Only runs when every
+# compose container is running (and healthy, where a healthcheck is defined).
+dockermakeupdate__prune: true
+
+# Directory containing the Makefile that drives the compose projects.
+dockermakeupdate__dir: /opt/docker
+
+# Health gate: how long to wait (seconds) for all compose containers to be
+# running and healthy after "make up", and how often to poll.
+dockermakeupdate__health_timeout: 300
+dockermakeupdate__health_delay: 10
+
+# Upper bound (seconds) for a single make step. Image pulls for large projects
+# can run for many minutes; the make tasks run async so slow steps cannot
+# stall the SSH connection.
+dockermakeupdate__make_timeout: 3600

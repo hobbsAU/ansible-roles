@@ -1,0 +1,55 @@
+---
+# tasks file for dockermakeupdate
+#
+# Each step lives in its own task file so playbooks can also compose steps
+# directly via "include_role: tasks_from:" (e.g. pull + down before a
+# poweroff), which tags cannot express from inside a playbook.
+# pull runs before down so services keep running through the slow step, and
+# each step is a separate make invocation because the Makefile selects its
+# project group from $(MAKECMDGOALS) being exactly one of pull/down.
+
+- name: Run preflight checks
+  ansible.builtin.include_tasks: preflight.yml
+  when: dockermakeupdate__enable | bool
+  tags:
+    - dockermakeupdate
+    - pull
+    - down
+    - up
+    - prune
+
+- name: Pull latest images
+  ansible.builtin.include_tasks: pull.yml
+  when: dockermakeupdate__enable | bool
+  tags:
+    - dockermakeupdate
+    - pull
+
+- name: Stop compose projects
+  ansible.builtin.include_tasks: down.yml
+  when: dockermakeupdate__enable | bool
+  tags:
+    - dockermakeupdate
+    - down
+
+- name: Start compose projects
+  ansible.builtin.include_tasks: up.yml
+  when: dockermakeupdate__enable | bool
+  tags:
+    - dockermakeupdate
+    - up
+
+- name: Verify all compose containers are up
+  ansible.builtin.include_tasks: health.yml
+  when: dockermakeupdate__enable | bool
+  tags:
+    - dockermakeupdate
+    - up
+    - prune
+
+- name: Prune unused Docker data
+  ansible.builtin.include_tasks: prune.yml
+  when: dockermakeupdate__enable | bool
+  tags:
+    - dockermakeupdate
+    - prune

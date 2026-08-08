@@ -1,0 +1,19 @@
+---
+# File: dockermakeupdate/tasks/down.yml
+# Desc: Stop and remove every compose project, in the Makefile's own teardown
+#       order. Because "down" removes the containers, restart policies have
+#       nothing to resurrect after a reboot: the host stays quiet until "up".
+
+- name: Stop compose projects (make down)
+  ansible.builtin.command: make down
+  args:
+    chdir: "{{ dockermakeupdate__dir }}"
+  environment:
+    TERM: dumb
+  async: "{{ dockermakeupdate__make_timeout | int }}"
+  poll: 15
+  register: dockermakeupdate__down_result
+  changed_when: true
+  tags:
+    - dockermakeupdate
+    - down
