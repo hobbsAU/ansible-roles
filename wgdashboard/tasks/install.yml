@@ -1,5 +1,5 @@
 ---
-- name: "({{ ansible_facts['distribution'] }}) Update APT package cache"
+- name: "Update APT package cache ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
@@ -8,7 +8,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_facts['distribution'] }}) APT autoremove"
+- name: "APT autoremove ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     autoremove: true
   retries: 2
@@ -16,7 +16,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_facts['distribution'] }}) Upgrade APT to the latest packages"
+- name: "Upgrade APT to the latest packages ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     upgrade: full
     autoremove: true
@@ -29,14 +29,14 @@
   ansible.builtin.apt:
     name: "{{ wgdash_wg_packages }}"
     state: present
-  become: yes
+  become: true
   when: wgdash_wg_packages is defined
 
 - name: Ensure wgdash prerequisites are installed
   ansible.builtin.apt:
     name: "{{ wgdash_wgdash_packages }}"
     state: present
-  become: yes
+  become: true
   when: wgdash_wgdash_packages is defined
 
 - name: Seed wg0 config
@@ -45,16 +45,16 @@
     dest: "/etc/wireguard/{{ wgdash_wg_interface }}.conf"
     owner: root
     group: root
-    mode: 600
-  become: yes
+    mode: "0600"
+  become: true
   notify: Restart WireGuard
   when: wgdash_config_seed | bool
 
 - name: Enable IPv4 forwarding
-  ansible.builtin.sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
-    reload: yes
+    reload: true
 
 - name: Start and enable WireGuard service
   ansible.builtin.service:
@@ -66,18 +66,21 @@
   ansible.builtin.git:
     repo: https://github.com/donaldzou/WGDashboard.git
     dest: "{{ wgdash_path }}"
-    update: yes
+    version: "{{ wgdash_git_version }}"
+    update: true
 
 - name: Make wgd.sh executable
   ansible.builtin.file:
     path: "{{ wgdash_path }}/src/wgd.sh"
-    mode: '0755'
+    mode: "0755"
     state: file
 
 - name: Run WGDashboard installer
   ansible.builtin.command: ./wgd.sh install
   args:
     chdir: "{{ wgdash_path }}/src"
+  # The installer builds a venv and seeds the database; no clean idempotency signal
+  changed_when: true
 
 - name: Create or update the WGDashboard systemd unit file
   ansible.builtin.template:
@@ -85,13 +88,14 @@
     dest: /etc/systemd/system/wgdashboard.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Reload systemd manager configuration
-  ansible.builtin.command: systemctl daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
 
 - name: Enable and start the WGDashboard service
   ansible.builtin.service:
     name: wgdashboard
-    enabled: yes
+    enabled: true
     state: started

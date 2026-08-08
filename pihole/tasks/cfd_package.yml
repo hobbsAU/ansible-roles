@@ -1,15 +1,16 @@
 ---
-- name: build filename of file to be downloaded
-  set_fact:
-    cloudflared_file: "{{ vars['cloudflared_'+device_arch+'_'+ansible_pkg_mgr] }}"
+- name: Build filename of file to be downloaded
+  ansible.builtin.set_fact:
+    cloudflared_file: "{{ vars['cloudflared_' + device_arch + '_' + ansible_pkg_mgr] }}"
 
-- name: download correct file for device
-  get_url:
+- name: Download correct file for device
+  ansible.builtin.get_url:
     url: "{{ cloudflared_base_url }}{{ cloudflared_file }}"
     dest: "/tmp/{{ cloudflared_file }}"
+    mode: "0644"
 
 - name: Install a .deb package
-  apt:
+  ansible.builtin.apt:
     deb: "/tmp/{{ cloudflared_file }}"
     state: present
   register: pkg_mgr_output
@@ -17,7 +18,7 @@
   when: ansible_pkg_mgr == 'apt'
 
 - name: Install a .rpm package
-  yum:
+  ansible.builtin.dnf:
     name: "/tmp/{{ cloudflared_file }}"
     state: present
   register: pkg_mgr_output

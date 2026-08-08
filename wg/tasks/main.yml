@@ -1,5 +1,5 @@
 ---
-- name: "({{ ansible_facts['distribution'] }}) Update APT package cache"
+- name: "Update APT package cache ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
@@ -8,7 +8,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_facts['distribution'] }}) APT autoremove"
+- name: "APT autoremove ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     autoremove: true
   retries: 2
@@ -16,7 +16,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_facts['distribution'] }}) Upgrade APT to the latest packages"
+- name: "Upgrade APT to the latest packages ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     upgrade: full
     autoremove: true
@@ -29,7 +29,7 @@
   ansible.builtin.apt:
     name: wireguard-tools
     state: present
-  become: yes
+  become: true
 
 - name: Setup wg0 config
   ansible.builtin.copy:
@@ -37,23 +37,23 @@
     dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
     owner: root
     group: root
-    mode: 600
-  become: yes
+    mode: "0600"
+  become: true
   notify: Restart WireGuard
 
 - name: Enable IPv4 forwarding
-  ansible.builtin.sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
     state: present
-    reload: yes
+    reload: true
 
 - name: Set TCP congestion control to BBR
-  ansible.builtin.sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.tcp_congestion_control
     value: "bbr"
     state: present
-    reload: yes
+    reload: true
 
 - name: Start and enable WireGuard service
   ansible.builtin.service:

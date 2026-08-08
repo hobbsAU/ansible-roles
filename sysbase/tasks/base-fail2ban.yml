@@ -1,39 +1,38 @@
 ---
-
 # File: roles/base/tasks/base-fail2ban.yml
 # Desc: Configures and starts fail2ban
 
 - name: Install fail2ban (Debian).
-  package:
+  ansible.builtin.package:
     name: fail2ban
     state: present
   when: ansible_facts["os_family"] == 'Debian'
 
 - name: Copy jail custom configuration file into place.
-  template:
+  ansible.builtin.template:
     src: "{{ security_fail2ban_custom_configuration_template }}"
     dest: /etc/fail2ban/jail.local
     owner: root
     group: root
-    mode: 644
+    mode: "0644"
   notify:
-    - reload fail2ban
+    - Reload fail2ban
 
 - name: Copy fail2ban custom configuration file into place.
-  template:
+  ansible.builtin.template:
     src: fail2ban.local.j2
     dest: /etc/fail2ban/fail2ban.local
     owner: root
     group: root
-    mode: 644
+    mode: "0644"
   when:
     - ansible_facts["os_family"] == 'Debian'
     - ansible_facts["distribution_major_version"] | int >= 12
   notify:
-    - reload fail2ban
+    - Reload fail2ban
 
 - name: Ensure fail2ban is running and enabled on boot.
-  service:
+  ansible.builtin.service:
     name: fail2ban
     state: started
     enabled: true

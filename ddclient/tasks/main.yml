@@ -2,24 +2,30 @@
 # tasks file for ddclient
 
 - name: Add the OS specific varibles
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Install the ddclient packages
-  apt:
+  ansible.builtin.apt:
     name: "{{ ddclient_pkg }}"
     state: present
-    update_cache: yes
+    update_cache: true
   when: ansible_os_family == "Debian"
 
 - name: Install the ddclient dependencies
-  apt:
-    name: [ 'libio-socket-ssl-perl' ]
+  ansible.builtin.apt:
+    name: ["libio-socket-ssl-perl"]
     state: present
-    update_cache: yes
+    update_cache: true
   when: ansible_os_family == "Debian"
 
-- name: ddclient | Set ddclient config
-  template: src=ddclient.conf.j2 dest={{ddclient_app_path}}/ddclient.conf
+- name: Set ddclient config
+  ansible.builtin.template:
+    src: ddclient.conf.j2
+    dest: "{{ ddclient_app_path }}/ddclient.conf"
+    owner: root
+    group: root
+    # Contains the dynamic DNS password in plain text
+    mode: "0600"
   when: ansible_os_family == "Debian"
   notify:
-    - restart ddclient
+    - Restart ddclient
