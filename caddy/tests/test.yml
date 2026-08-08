@@ -1,8 +1,9 @@
 ---
 # Test playbook for caddy role
 
-- hosts: localhost
-  become: yes
+- name: Test the caddy role
+  hosts: localhost
+  become: true
   roles:
     - role: caddy
       vars:

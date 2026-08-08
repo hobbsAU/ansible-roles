@@ -4,7 +4,8 @@
 #
 
 - name: Update Pi-Hole
-  shell: "pihole -up"
+  ansible.builtin.command: "pihole -up"
   register: update_pihole
+  # pihole -up reports "Everything is up to date!" when there was nothing to do
+  changed_when: "'up to date' not in update_pihole.stdout"
   tags: pihole
-

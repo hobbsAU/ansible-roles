@@ -1,15 +1,13 @@
 ---
-
 - name: Install dependencies
-  apt:
+  ansible.builtin.apt:
     pkg:
       - openresolv
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install WireGuard
-  apt:
+  ansible.builtin.apt:
     name: wireguard
     state: present
-    update_cache: yes
-
+    update_cache: true

@@ -71,7 +71,7 @@
 - name: Perform upgrade (dist)
   ansible.builtin.apt:
     upgrade: dist
-    dpkg_options: 'force-confdef,force-confold'
+    dpkg_options: "force-confdef,force-confold"
     autoremove: true
     autoclean: true
   environment:

@@ -14,12 +14,12 @@
     skeleton: /etc/skel
     state: present
     groups: "sudo,{{ base_sshd_usergroup }}"
-    append: yes
+    append: true
     password: "{{ base_user_password | default(omit) }}"
   register: user_result
 
 - name: Provision the user's SSH key
-  ansible.builtin.authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ base_user_name }}"
     key: "{{ base_user_sshkey }}"
     state: present

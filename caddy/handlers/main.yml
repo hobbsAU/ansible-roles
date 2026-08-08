@@ -1,7 +1,7 @@
 ---
 # Handlers for caddy role
 
-- name: restart caddy
+- name: Restart caddy
   community.docker.docker_compose_v2:
     project_src: "{{ caddy_install_dir }}"
     state: restarted

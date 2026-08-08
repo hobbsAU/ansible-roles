@@ -4,100 +4,103 @@
 #
 
 - name: Enable Host DNS
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/resolv.conf
-    regexp: '^nameserver'
-    line: 'nameserver 8.8.8.8'
+    regexp: "^nameserver"
+    line: "nameserver 8.8.8.8"
 
-- name: 'Disable WIFI and Bluetooth'
-  copy: src=./files/raspi-blacklist.conf dest=/etc/modprobe.d/raspi-blacklist.conf mode=0600
+- name: "Disable WIFI and Bluetooth"
+  ansible.builtin.copy:
+    src: ./files/raspi-blacklist.conf
+    dest: /etc/modprobe.d/raspi-blacklist.conf
+    mode: "0600"
   tags: admin
 
 - name: Stop and disable services
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: stopped
-    enabled: no
+    enabled: false
   register: service_result
   failed_when: "service_result is failed and 'Could not find the requested service' not in service_result.msg"
   loop: "{{ disable_services }}"
 
 - name: Add the user
-  user:
+  ansible.builtin.user:
     name: "{{ user_pihole }}"
     comment: PiHole Daemon
 
 - name: "Download Pi-Hole installer"
-  get_url:
-      url: https://install.pi-hole.net
-      dest: ~/install-pihole.sh
-      mode: 0740
+  ansible.builtin.get_url:
+    url: https://install.pi-hole.net
+    dest: ~/install-pihole.sh
+    mode: "0740"
   tags: pihole
 
 - name: Create pihole configuration directory
-  become: True
-  file:
+  become: true
+  ansible.builtin.file:
     name: "{{ fspath_pihole_config }}"
     state: directory
     owner: "{{ user_pihole }}"
     group: "{{ group_pihole }}"
-    mode: 0755
+    mode: "0755"
   tags: pihole
 
 - name: Create pihole configuration
-  become: True
-  template:
+  become: true
+  ansible.builtin.template:
     src: "setupVars.conf.j2"
     dest: "{{ fspath_pihole_config }}/setupVars.conf"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   tags: pihole
 
 - name: Create dnsmasq configuration directory
-  become: True
-  file:
+  become: true
+  ansible.builtin.file:
     name: "{{ fspath_dnsmasq_config }}"
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
   tags: pihole
 
 - name: Create dhcp config
-  become: True
-  template:
+  become: true
+  ansible.builtin.template:
     src: "02-pihole-dhcp.conf.j2"
     dest: "{{ fspath_dnsmasq_config }}/02-pihole-dhcp.conf"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   tags: pihole
 
 - name: Create hosts config
-  become: True
-  template:
+  become: true
+  ansible.builtin.template:
     src: "03-custom-dns-names.conf"
     dest: "{{ fspath_dnsmasq_config }}/03-custom-dns-names.conf"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   tags: pihole
 
 - name: Create pihole dhcp list
-  become: True
-  template:
+  become: true
+  ansible.builtin.template:
     src: "04-pihole-static-dhcp.conf.j2"
     dest: "{{ fspath_dnsmasq_config }}/04-pihole-static-dhcp.conf"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   tags: pihole
 
 - name: Configure static IP in  /etc/dhcpcd.conf
-  become: yes
-  lineinfile:
-    dest:  /etc/dhcpcd.conf
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/dhcpcd.conf
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     state: present
@@ -108,26 +111,35 @@
     - { regexp: "^static domain_name_servers", line: "static domain_name_servers={{ host_dns_servers }}" }
 
 - name: Install Pi-Hole
-  shell: "~/install-pihole.sh --unattended"
+  ansible.builtin.command: "~/install-pihole.sh --unattended"
   register: dbg_install_pihole
+  # Running the unattended installer always alters the system
+  changed_when: true
   tags: pihole
 
 - name: Set PiHole to update every week
-  become: True
-  replace:
+  become: true
+  ansible.builtin.replace:
     path: /etc/cron.d/pihole
-    regexp: '^#(.*updatePihole.*)$'
-    replace: '\1'
-    backup: yes
+    regexp: "^#(.*updatePihole.*)$"
+    replace: "\\1"
+    backup: true
   tags: admin
 
-- name: 'Reboot'
-  shell: sleep 2 && reboot
+- name: Reboot
+  ansible.builtin.shell: sleep 2 && reboot
   async: 1
   poll: 0
-  ignore_errors: true
+  # The connection drops as the host goes down; that is the expected outcome
+  failed_when: false
+  changed_when: true
   tags: pihole
 
-- name: "Wait for Raspberry PI to come back"
-  local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
+- name: Wait for Raspberry PI to come back
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: 22
+    state: started
+    delay: 10
+  delegate_to: localhost
   become: false

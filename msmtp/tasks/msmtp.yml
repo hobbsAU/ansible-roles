@@ -3,29 +3,29 @@
 # Desc: installs and configures msmtp
 
 - name: Ensure packages are installed
-  apt:
+  ansible.builtin.apt:
     name: "{{ msmtp_packages }}"
     state: present
-    update_cache: yes
-  notify: test mail
+    update_cache: true
+  notify: Test mail
   when: ansible_os_family == "Debian"
 
 - name: Copy mstprc conf file
-  template:
-     src=msmtprc.j2
-     dest=/etc/msmtprc
-     owner=root
-     group=root
-     mode=0644
+  ansible.builtin.template:
+    src: msmtprc.j2
+    dest: /etc/msmtprc
+    owner: root
+    group: root
+    mode: "0644"
   tags: mail
-  notify: test mail
+  notify: Test mail
 
 - name: Copy aliases conf file
-  template:
-      src=aliases.j2
-      dest=/etc/aliases
-      owner=root
-      group=root
-      mode=0644
+  ansible.builtin.template:
+    src: aliases.j2
+    dest: /etc/aliases
+    owner: root
+    group: root
+    mode: "0644"
   tags: mail
-  notify: test mail
+  notify: Test mail

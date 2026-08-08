@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: hobbsAU
   description: piHole installer
@@ -16,7 +17,7 @@ galaxy_info:
   # - CC-BY-4.0
   license: GPL-3.0-only
 
-  min_ansible_version: 2.9
+  min_ansible_version: "2.9"
 
   # If this a Container Enabled role, provide the minimum Ansible Container version.
   # min_ansible_container_version:
@@ -40,9 +41,9 @@ galaxy_info:
   #   - 99.99
 
   platforms:
-  - name: Debian
-    versions:
-      - all
+    - name: Debian
+      versions:
+        - all
 
   galaxy_tags: []
     # List tags for your role here, one per line. A tag is a keyword that describes

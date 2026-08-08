@@ -4,7 +4,7 @@
 
 - name: Deploy Caddy Forward Proxy
   hosts: proxy_servers
-  become: yes
+  become: true
 
   vars:
     # Override default variables here or in host_vars/group_vars
@@ -26,7 +26,7 @@
   hosts:
     - proxy1.example.com
     - proxy2.example.com
-  become: yes
+  become: true
 
   roles:
     - role: caddy

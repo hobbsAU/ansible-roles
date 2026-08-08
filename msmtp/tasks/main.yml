@@ -2,4 +2,5 @@
 # File: roles/msmtp/tasks/main.yml
 # Desc: installs and configures msmtp
 
-- include: msmtp.yml
+- name: Install and configure msmtp
+  ansible.builtin.import_tasks: msmtp.yml

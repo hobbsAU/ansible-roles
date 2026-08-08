@@ -2,41 +2,41 @@
 # File: roles/base/tasks/main.yml
 # Desc: Configures Debian base O/S
 
-#- name: "Setting hostname"
+# - name: "Setting hostname"
 #  hostname:
-#    name: base_hostname 
+#    name: base_hostname
 #  tags: admin
 
 - name: Include packages
-  include_tasks: base-packages.yml
+  ansible.builtin.include_tasks: base-packages.yml
   when: base_install_software | bool
 
 - name: Include users
-  include_tasks: base-user.yml
+  ansible.builtin.include_tasks: base-user.yml
   when: base_config_user | bool
 
 - name: Include sshd-config
-  include_tasks: base-sshd.yml
+  ansible.builtin.include_tasks: base-sshd.yml
   when: base_config_sshd | bool
 
 - name: Include fail2ban-config
-  include_tasks: base-fail2ban.yml
+  ansible.builtin.include_tasks: base-fail2ban.yml
   when: base_config_fail2ban | bool
 
 - name: Include dotfiles
-  include_tasks: base-dotfiles.yml
+  ansible.builtin.include_tasks: base-dotfiles.yml
   when: base_config_dotfiles | bool
 
 - name: Include hardening
-  include_tasks: base-hardening.yml
+  ansible.builtin.include_tasks: base-hardening.yml
   when: base_harden_system | bool
 
 - name: Include sysctl config
-  include_tasks: base-sysctl.yml
+  ansible.builtin.include_tasks: base-sysctl.yml
   when: base_config_sysctl | bool
 
 - name: Include autoupdate system
-  include_tasks: base-autoupdate.yml
+  ansible.builtin.include_tasks: base-autoupdate.yml
   when:
     - ansible_facts["os_family"] == 'Debian'
     - base_autopdate_system | bool

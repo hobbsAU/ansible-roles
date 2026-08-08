@@ -7,7 +7,9 @@ wgdash_wg_port: 51820
 wgdash_config_seed: false
 wgdash_config_backup: false
 wgdash_path: "/opt/WGDashboard"
+# Git ref to check out. HEAD tracks the repository's default branch.
+wgdash_git_version: "HEAD"
 
 # Packages
-wgdash_wg_packages: ['wireguard-tools']
-wgdash_wgdash_packages: ['git', 'iptables', 'net-tools']
+wgdash_wg_packages: ["wireguard-tools"]
+wgdash_wgdash_packages: ["git", "iptables", "net-tools"]

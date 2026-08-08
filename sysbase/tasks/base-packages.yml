@@ -3,28 +3,27 @@
 # Desc: Installs packages and services. Enables services. Removes specific packages.
 
 - name: Ensure packages are installed
-  apt:
+  ansible.builtin.apt:
     name: "{{ base_packages }}"
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Extra packages to install
-  apt:
+  ansible.builtin.apt:
     name: "{{ base_extra }}"
     state: present
-    update_cache: yes
+    update_cache: true
   when: base_extra is defined
 
 - name: Ensure services are running and enabled
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: started
-    enabled: yes
+    enabled: true
   loop: "{{ base_services }}"
 
 - name: Ensure packages are removed
-  apt:
+  ansible.builtin.apt:
     name: "{{ base_packages_removed }}"
     state: absent
   when: base_packages_removed is defined
-

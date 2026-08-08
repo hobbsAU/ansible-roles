@@ -7,15 +7,15 @@
     - base_config_user | bool
     - ansible_facts["distribution"] == "Debian"
     - item.path is match('/home/.*')
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ item.path }}"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    create: yes
+    create: true
     owner: "{{ base_user_name }}"
     group: "{{ base_user_name }}"
-    mode: '0644'
-  become: yes
+    mode: "0644"
+  become: true
   become_user: "{{ base_user_name }}"
   loop: "{{ base_dotfiles }}"
 
@@ -23,15 +23,15 @@
   when:
     - ansible_facts["distribution"] == "Debian"
     - item.path is match('/root/.*')
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ item.path }}"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    create: yes
+    create: true
     owner: root
     group: root
-    mode: '0644'
-  become: yes
+    mode: "0644"
+  become: true
   loop: "{{ base_dotfiles | default([]) }}"
   vars:
-    base_user_name: 'dummy'
+    base_user_name: "dummy"

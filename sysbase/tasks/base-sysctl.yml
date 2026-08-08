@@ -7,7 +7,7 @@
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     state: present
-    reload: yes
-    sysctl_set: yes
+    reload: true
+    sysctl_set: true
   loop: "{{ base_sysctl_overrides }}"
   when: base_sysctl_overrides | length > 0

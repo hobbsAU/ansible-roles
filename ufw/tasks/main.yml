@@ -1,25 +1,21 @@
 ---
-
 - name: Installing packages
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   with_items: "{{ ufw_packages }}"
-
 
 - name: Configuring service state
   community.general.ufw:
     state: "{{ 'enabled' if ufw_enabled else 'disabled' }}"
 
-
 - name: Configuring service
-  template:
+  ansible.builtin.template:
     src: "{{ ufw_config_file | basename }}.j2"
     dest: "{{ ufw_config_file }}"
-    mode: 0644
-  notify: reload ufw
+    mode: "0644"
+  notify: Reload ufw
   when: ufw_manage_config | bool
-
 
 - name: Applying rules
   community.general.ufw:

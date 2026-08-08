@@ -2,13 +2,12 @@
 # File: ansible-role-hetzner/tasks/hetzner-floatingip.yml
 # Desc: Configures Hetzner Floating IP
 
-- name: configure floating IP
-  template:
+- name: Configure floating IP
+  ansible.builtin.template:
     src: hetzner.floating-ip.j2
     dest: "/etc/network/interfaces.d/60-my-floating-ip.cfg"
-    mode: 0644
+    mode: "0644"
     owner: root
     group: root
   tags: hetzner
-  notify: restart network
-
+  notify: Restart network

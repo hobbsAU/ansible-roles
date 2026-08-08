@@ -1,5 +1,8 @@
 ---
 # handlers file for ddclient
 #
-- name: restart ddclient 
-  service: name=ddclient state=restarted enabled=yes
+- name: Restart ddclient
+  ansible.builtin.service:
+    name: ddclient
+    state: restarted
+    enabled: "yes"

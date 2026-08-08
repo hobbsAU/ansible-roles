@@ -1,5 +1,5 @@
 ---
-- name: "({{ ansible_facts['distribution'] }}) Update APT package cache"
+- name: "Update APT package cache ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
@@ -8,7 +8,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_facts['distribution'] }}) APT autoremove"
+- name: "APT autoremove ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     autoremove: true
   retries: 2
@@ -16,7 +16,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_facts['distribution'] }}) Upgrade APT to the latest packages"
+- name: "Upgrade APT to the latest packages ({{ ansible_facts['distribution'] }})"
   ansible.builtin.apt:
     upgrade: full
     autoremove: true
@@ -25,8 +25,9 @@
   tags:
     - apt
 
-- name: Update wireguard
+# state: latest is the point of this task file
+- name: Update wireguard # noqa: package-latest
   ansible.builtin.apt:
     name: wireguard-tools
     state: latest
-  become: yes
+  become: true

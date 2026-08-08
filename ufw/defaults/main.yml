@@ -4,7 +4,6 @@ ufw_enabled: true
 
 # List of packages to install
 ufw_packages: ["ufw"]
-
 # The service name
 ufw_service: ufw
 

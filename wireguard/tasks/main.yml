@@ -1,27 +1,27 @@
 ---
-
-- import_tasks: install.yml
+- name: Install WireGuard
+  ansible.builtin.import_tasks: install.yml
   tags: wireguard.install
 
 - name: Setup interface and peers
-  template:
+  ansible.builtin.template:
     src: interface.conf.j2
     dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
     owner: root
     group: root
-    mode: 0600
-  notify: restart wireguard
+    mode: "0600"
+  notify: Restart wireguard
   tags: wireguard.config
 
 - name: Enable IPv4 forwarding
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: "1"
-    reload: yes
+    reload: true
   tags: wireguard.config
 
 - name: Update /etc/hosts
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/hosts
     regexp: "^{{ item.value.ip }}"
     line: "{{ item.value.ip }} {{ item.key }}"
@@ -29,14 +29,14 @@
   tags: wireguard.config
 
 - name: Enable and start WireGuard service
-  service:
+  ansible.builtin.service:
     name: "wg-quick@{{ wireguard_interface }}"
     state: stopped
     enabled: true
   register: result
   tags: wireguard.install
 
-- name: Reboot
-  reboot:
+# Not a handler: the host must be back up before the rest of the play runs.
+- name: Reboot # noqa: no-handler
+  ansible.builtin.reboot:
   when: result is changed
-

@@ -1,0 +1,8 @@
+---
+# ansible-lint configuration
+# https://ansible.readthedocs.io/projects/lint/configuring/
+
+exclude_paths:
+  # Documentation only. Illustrates the upstream weareinteractive.ufw role,
+  # which is not installed here, so it cannot pass a syntax check.
+  - ufw/docs/

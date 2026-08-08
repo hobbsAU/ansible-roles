@@ -2,20 +2,20 @@
 # File: roles/base/tasks/sshd-config.yml
 # Desc: Configures, tests and starts sshd
 
-- name: configure sshd
-  template:
+- name: Configure sshd
+  ansible.builtin.template:
     src: sshd_secure.j2
     dest: "{{ base_sshd_config_basedir }}/sshd_config.d/sshd_secure.conf"
     owner: root
     group: root
     mode: "0400"
     validate: "/usr/sbin/sshd -t -f %s"
-  notify: restart sshd
+  notify: Restart sshd
   tags: configuration
 
-- name: enable sshd
-  service:
+- name: Enable sshd
+  ansible.builtin.service:
     name: "{{ base_sshd_service_name }}"
     state: started
-    enabled: yes
+    enabled: true
   tags: service

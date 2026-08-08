@@ -11,7 +11,7 @@
 
 # No module equivalent: service_facts only reports .service units, so it cannot
 # tell us whether docker.socket is installed.
-- name: Find which Docker units exist  # noqa: command-instead-of-module
+- name: Find which Docker units exist # noqa: command-instead-of-module
   ansible.builtin.command: "systemctl list-unit-files --no-legend {{ sysupdate__docker_units | join(' ') }}"
   register: sysupdate__docker_unit_files
   changed_when: false

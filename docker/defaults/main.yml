@@ -1,6 +1,6 @@
 ---
 # Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
-docker_edition: 'ce'
+docker_edition: "ce"
 docker_packages:
   - "docker-{{ docker_edition }}"
   - "docker-{{ docker_edition }}-cli"
@@ -54,7 +54,6 @@ docker_apt_filename: "docker"
 
 # A list of users who will be added to the docker group.
 docker_users: []
-
 # Docker daemon options as a dict
 docker_daemon_options: {}
 
